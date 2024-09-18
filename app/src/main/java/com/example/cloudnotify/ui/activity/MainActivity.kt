@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.cloudnotify.databinding.ActivityMainBinding
+import com.example.cloudnotify.ui.fragment.FavouriteFragment
+import com.example.cloudnotify.ui.fragment.HomeFragment
+import com.example.cloudnotify.ui.fragment.SettingsFragment
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
