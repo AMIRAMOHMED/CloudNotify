@@ -1,4 +1,4 @@
-package com.example.cloudnotify
+package com.example.cloudnotify.ui.activity
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -7,6 +7,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import com.example.cloudnotify.AlarmFragment
+import com.example.cloudnotify.R
 import com.example.cloudnotify.databinding.ActivityMainBinding
 import com.example.cloudnotify.ui.fragment.FavouriteFragment
 import com.example.cloudnotify.ui.fragment.HomeFragment
