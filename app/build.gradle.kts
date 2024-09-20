@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    id("kotlin-kapt")
 }
 
 // Load properties from secrets.properties file
@@ -64,7 +65,7 @@ dependencies {
 
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.androidx.room.testing)
-
+    kapt ("androidx.room:room-compiler:2.5.0")
     // Retrofit and Gson dependencies
     implementation(libs.squareup.retrofit)
     implementation(libs.converter.gson)

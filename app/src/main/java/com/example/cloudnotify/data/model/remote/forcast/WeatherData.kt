@@ -1,19 +1,18 @@
 package com.example.cloudnotify.data.model.remote.forcast
 
 
-data class WeatherData (
-    val clouds: Clouds,
+data class WeatherData(
+    val clouds: Clouds?,
     val dt: Int,
-    val dt_txt: String,
+    val dt_txt: String?,
     val main: Main,
-    val pop: Int,
-    val rain: Rain,
-    val sys: Sys,
-    val visibility: Int,
+    val pop: Double?,
+    val rain: Rain?,
+    val sys: Sys?,
+    val visibility: Int?,
     val weather: List<Weather>,
-    val wind: Wind
+    val wind: Wind?
 )
-
 data class Weather(
     val description: String,
     val icon: String,

@@ -8,21 +8,22 @@ import retrofit2.http.Query
 interface WeatherService {
 
     // Forecast API endpoint using suspend function
-    @GET("data/2.5/forecast")
+    @GET("forecast")
     suspend fun getWeatherForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("appid") apiKey: String = BuildConfig.API_KEY
+        @Query("units") units: String = "metric",
+        @Query("lang") lang: String = "en",
+        @Query("appid") apiKey: String = BuildConfig.API_KEY): WeatherForecastFor7DayResponse
 
-    ): WeatherForecastFor7DayResponse
 
     // Current weather API endpoint using suspend function
-    @GET("data/2.5/weather")
+    @GET("weather")
     suspend fun getCurrentWeather(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("units") units: String = "metric",
         @Query("lang") lang: String = "en",
         @Query("appid") apiKey: String = BuildConfig.API_KEY
-    ): CurrentWeatherResponse
+    ):CurrentWeatherResponse
 }

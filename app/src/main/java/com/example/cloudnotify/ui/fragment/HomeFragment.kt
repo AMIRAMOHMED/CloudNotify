@@ -5,22 +5,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-
+import androidx.lifecycle.lifecycleScope
 import com.example.cloudnotify.R
+import com.example.cloudnotify.data.local.WeatherDao
+import com.example.cloudnotify.network.WeatherService
+import com.example.cloudnotify.data.repo.WeatherRepository
+import com.example.cloudnotify.Utility.NetworkUtils
+import com.example.cloudnotify.data.local.WeatherDataBase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var weatherRepo: WeatherRepository
+    private lateinit var networkUtils: NetworkUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Initialize your dependencies here
 
+        val dao = WeatherDataBase.getInstance(requireActivity()).weatherDao
+
+
+            networkUtils = NetworkUtils(requireContext()) // Pass context for network utils
+
+        // Initialize the repository by passing the dependencies
+        weatherRepo = WeatherRepository(
+            dao,
+            networkUtils
+        )
     }
 
     override fun onCreateView(
@@ -31,20 +45,18 @@ class HomeFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        // Fetch and observe weather data in an IO thread
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                weatherRepo.getWeatherData().collect { weatherData ->
+                    withContext(Dispatchers.Main) {
+                        // Update your UI here with the collected weather data
+                    }
+                }
             }
+        }
     }
 }
