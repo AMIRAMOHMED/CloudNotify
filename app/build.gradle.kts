@@ -1,9 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
 }
 
+// Load properties from secrets.properties file
+val localProperties = File(rootProject.rootDir, "secrets.properties")
+val properties = Properties()
+
+if (localProperties.exists()) {
+    properties.load(localProperties.inputStream())
+}
 android {
     namespace = "com.example.cloudnotify"
     compileSdk = 34
@@ -14,16 +23,21 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures{
+
+    buildFeatures {
         viewBinding = true
         dataBinding = true
+        buildConfig = true  // Enable BuildConfig fields
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_KEY", "\"${properties["API_KEY"]}\"")
+        }
         release {
+            buildConfigField("String", "API_KEY", "\"${properties["API_KEY"]}\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -31,6 +45,8 @@ android {
             )
         }
     }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -41,26 +57,25 @@ android {
 }
 
 dependencies {
-
-
-
     val room_version = "2.6.1"
 
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
 
-//    // To use Kotlin Symbol Processing (KSP)
+    implementation(libs.androidx.room.ktx)
+    testImplementation(libs.androidx.room.testing)
 
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation("androidx.room:room-ktx:$room_version")
-// optional - Test helpers
-    testImplementation("androidx.room:room-testing:$room_version")
+    // Retrofit and Gson dependencies
+    implementation(libs.squareup.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
