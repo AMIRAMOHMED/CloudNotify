@@ -59,10 +59,10 @@ class Converter {
 
             DailyWeather(
                 dayOfWeek = day,  // The date for this day
-                weatherDescription = hourlyWeatherList[2].weatherDescription,  // Main weather description for the third hour
-                tempMax = hourlyWeatherList[2].tempMax,  // Temperature for the third hour
-                tempMin = hourlyWeatherList[2].tempMin,  // Temperature for the third hour
-                icon = hourlyWeatherList[2].icon  // Use the icon of the third hour
+                weatherDescription = hourlyWeatherList[0].weatherDescription,  // Main weather description for the third hour
+                tempMax = hourlyWeatherList[0].tempMax,  // Temperature for the third hour
+                tempMin = hourlyWeatherList[0].tempMin,  // Temperature for the third hour
+                icon = hourlyWeatherList[0].icon  // Use the icon of the third hour
             )
         }
     }
