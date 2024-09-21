@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text='@{String.format("%.1f", hourWeather.temperature)}'
+                android:text='@{String.format("%d", hourWeather.temperature)+ "º" }'
                 android:textColor="@color/white"
                 android:textSize="18sp" />
 

@@ -36,9 +36,9 @@ class Converter {
                 dt = weatherData.dt,
                 hour = formattedHour(weatherData.dt.toLong()),  // Convert timestamp to formatted hour
                 weatherDescription = weatherData.weather[0].main,  // Use the main weather description
-                temperature = weatherData.main.temp,  // Extract the temperature
-                tempMax = weatherData.main.temp_max,  // Extract the maximum temperature
-                tempMin = weatherData.main.temp_min,  // Extract the minimum temperature
+                temperature = weatherData.main.temp.toInt(),  // Extract the temperature
+                tempMax = weatherData.main.temp_max.toInt(),  // Extract the maximum temperature
+                tempMin = weatherData.main.temp_min.toInt(),  // Extract the minimum temperature
                 icon = weatherData.weather[0].icon  // Extract the weather icon
             )
         }
@@ -81,12 +81,12 @@ class Converter {
 
     fun mapCurrentWeatherResponseToCurrentWeather(response: CurrentWeatherResponse): CurrentWeather {
         return CurrentWeather(
-            temperature = response.main.temp,
-            tempMax = response.main.temp_max,
-            tempMin = response.main.temp_min,
+            temperature = response.main.temp.toInt(),
+            tempMax = response.main.temp_max.toInt(),
+            tempMin = response.main.temp_min.toInt(),
             weatherDescription =response.weather[0].main,
             icon =response.weather[0].icon,
-            windSpeed = response.wind.speed,
+            windSpeed = response.wind.speed.toInt(),
             rainPercentage =null,
             humidity =response.main.humidity,
             data =formattedDate(response.dt.toLong()),

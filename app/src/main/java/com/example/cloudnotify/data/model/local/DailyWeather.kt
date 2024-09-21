@@ -11,7 +11,7 @@ data class DailyWeather(
     val id: Int = 0,  // Auto-generated ID
     val dayOfWeek: String,
     val weatherDescription: String,
-    val tempMax: Double,
-    val tempMin: Double,
+    val tempMax: Int,
+    val tempMin: Int,
     val icon: String
 )

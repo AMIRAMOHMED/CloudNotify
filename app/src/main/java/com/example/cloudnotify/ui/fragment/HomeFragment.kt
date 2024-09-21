@@ -1,6 +1,7 @@
 package com.example.cloudnotify.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,7 +45,7 @@ class HomeFragment : Fragment() {
             networkUtils
         )
 
-        // You may initialize ViewModel here or in onViewCreated
+        // Initialize ViewModel
         homeViewModelFactory = HomeViewModelFactory(weatherRepo)
         homeViewModel = homeViewModelFactory.create(HomeVeiwModel::class.java)
     }
@@ -66,12 +67,19 @@ class HomeFragment : Fragment() {
         binding.dayRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.dayRecyclerView.adapter = hourWeatherAdapter
 
-        // Fetch and observe weather data in an IO thread
+        // Fetch and observe weather data
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
+
                 weatherRepo.getWeatherData().collect { weatherData ->
+                    Log.d("Fragmeny", "Received weather data: $weatherData")
+
                     withContext(Dispatchers.Main) {
+                        // Bind the data to the RecyclerView adapter
                         hourWeatherAdapter.setList(weatherData.hourlyWeather)
+
+                        // Bind currentWeather to the layout's variable
+                        binding.currentWeather = weatherData.currentWeather
                     }
                 }
             }

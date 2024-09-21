@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
+import android.util.Log
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -21,8 +22,10 @@ class NetworkUtils(private  val context:Context) {
 
             }
             override fun onLost(network:Network){
+                Log.d("NetworkUtils", "Network is lost")
 
                 trySend(false)
+
             }
 
         }

@@ -33,7 +33,9 @@ class WeatherRepository(
             if (isConnected) {
                 flow {
                     // Fetch and process data from the remote API
-                    val currentWeatherResponse = getCurrentWeatherFromRemote()  // Fetch current weather
+                    val currentWeatherResponse = getCurrentWeatherFromRemote()
+                    // Fetch current weather
+                    Log.d("WeatherRepository", "currentWeatherResponse: ${currentWeatherResponse.main.temp}")
                     val forecastResponse = getForecastWeatherFromRemote()       // Fetch weather forecast
                     // Log sizes of data lists
                     Log.d("WeatherRepository", "currentWeatherResponse: ${forecastResponse.list.size}")
@@ -63,19 +65,26 @@ class WeatherRepository(
                     )
                 }
             } else {
+                Log.i("WeatherRepository", "getWeatherData: lost connection")
                 flow {
-                    // Fetch and emit data from the local DB when offline
-                    val currentWeather = weatherDao.getCurrentWeather().first() // Collect Flow<CurrentWeather> to get the value
-                    val hourlyWeather = weatherDao.getHourlyWeather().first()   // Collect Flow<List<HourlyWeather>> to get the value
-                    val dailyWeather = weatherDao.getDailyWeather().first()     // Collect Flow<List<DailyWeather>> to get the value
+                    // Check if local data exists before emitting
+                    val currentWeather = weatherDao.getCurrentWeather().first()
+                    val hourlyWeather = weatherDao.getHourlyWeather().first()
+                    val dailyWeather = weatherDao.getDailyWeather().first()
 
-                    emit(
-                        WeatherData(
-                            currentWeather = currentWeather,
-                            hourlyWeather = hourlyWeather,
-                            dailyWeather = dailyWeather
+                    // Emit only if local data is available
+                    if (currentWeather != null && hourlyWeather.isNotEmpty() && dailyWeather.isNotEmpty()) {
+                        emit(
+                            WeatherData(
+                                currentWeather = currentWeather,
+                                hourlyWeather = hourlyWeather,
+                                dailyWeather = dailyWeather
+                            )
                         )
-                    )
+                    } else {
+                        Log.w("WeatherRepository", "getWeatherData: No local data available")
+                        // Handle the case where no local data exists (e.g., show an error message)
+                    }
                 }
             }
         }

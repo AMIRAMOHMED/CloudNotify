@@ -10,7 +10,7 @@ import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.data.model.local.HourlyWeather
 @Database(
     entities = [CurrentWeather::class, HourlyWeather::class, DailyWeather::class],
-    version = 1
+    version = 2
 )
 abstract class WeatherDataBase : RoomDatabase() {
     abstract val weatherDao: WeatherDao
