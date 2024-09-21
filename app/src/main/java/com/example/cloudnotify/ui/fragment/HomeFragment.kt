@@ -9,8 +9,8 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.cloudnotify.data.local.WeatherDao
-import com.example.cloudnotify.data.local.WeatherDataBase
+import com.example.cloudnotify.data.local.db.WeatherDao
+import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter

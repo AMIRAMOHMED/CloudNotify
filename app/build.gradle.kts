@@ -67,6 +67,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.androidx.room.testing)
     kapt ("androidx.room:room-compiler:2.5.0")
+    //security
+    implementation ("androidx.security:security-crypto:1.1.0-alpha06")
+
     // Retrofit and Gson dependencies
     implementation(libs.squareup.retrofit)
     implementation(libs.converter.gson)

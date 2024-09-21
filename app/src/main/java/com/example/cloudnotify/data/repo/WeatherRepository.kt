@@ -3,7 +3,7 @@ package com.example.cloudnotify.data.repo
 import android.util.Log
 import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.Utility.NetworkUtils
-import com.example.cloudnotify.data.local.WeatherDao
+import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.model.local.CurrentWeather
 import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.data.model.local.HourlyWeather
@@ -13,9 +13,7 @@ import com.example.cloudnotify.network.RetrofitInstance
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 
 class WeatherRepository(
     private val weatherDao: WeatherDao,

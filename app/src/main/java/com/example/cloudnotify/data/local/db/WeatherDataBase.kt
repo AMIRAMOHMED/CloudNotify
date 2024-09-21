@@ -1,4 +1,4 @@
-package com.example.cloudnotify.data.local
+package com.example.cloudnotify.data.local.db
 
 import android.content.Context
 import androidx.room.Database
