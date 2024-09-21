@@ -1,5 +1,6 @@
 package com.example.cloudnotify.ui.activity
 
+import HomeFragment
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -11,7 +12,6 @@ import com.example.cloudnotify.AlarmFragment
 import com.example.cloudnotify.R
 import com.example.cloudnotify.databinding.ActivityMainBinding
 import com.example.cloudnotify.ui.fragment.FavouriteFragment
-import com.example.cloudnotify.ui.fragment.HomeFragment
 import com.example.cloudnotify.ui.fragment.SettingsFragment
 import com.google.android.material.navigation.NavigationView
 

@@ -137,8 +137,8 @@ class WeatherRepository(
 
     // Remote interactions
     suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse =
-        RetrofitInstance.api.getCurrentWeather(31.205753, 29.924526)
+        RetrofitInstance.api.getCurrentWeather(51.5072178, -0.12758619999999998)
 
     suspend fun getForecastWeatherFromRemote(): WeatherForecastFor7DayResponse =
-        RetrofitInstance.api.getWeatherForecast(31.205753, 29.924526)
+        RetrofitInstance.api.getWeatherForecast(51.5072178, -0.12758619999999998)
 }

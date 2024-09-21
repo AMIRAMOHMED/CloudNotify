@@ -58,6 +58,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.play.services.location)
     val room_version = "2.6.1"
 
     implementation(libs.androidx.room.runtime)
