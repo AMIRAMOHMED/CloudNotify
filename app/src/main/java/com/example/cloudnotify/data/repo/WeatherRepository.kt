@@ -15,13 +15,12 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 class WeatherRepository(
     private val weatherDao: WeatherDao,
     private val networkUtils: NetworkUtils
-)
-{
-
+) {
     private val converter = Converter()
 
     // Container class to hold all weather data types
@@ -32,53 +31,49 @@ class WeatherRepository(
     )
 
     fun getWeatherData(): Flow<WeatherData?> {
-        return weatherDao.getCurrentWeather() // Start by getting the current weather from the local database
-            .flatMapLatest { localCurrentWeather ->
-                if (localCurrentWeather != null) {
-                    // Emit local data first
-                    val localData = fetchDataFromLocal() // Fetch local hourly and daily weather
-                    flow {
-                        emit(localData) // Emit local data
-                        // Fetch from remote after emitting local data
-                        try {
-                            val remoteData = fetchDataFromRemote()
-                            emit(remoteData) // Emit remote data once fetched
-                        } catch (e: Exception) {
-                            Log.e("WeatherRepository", "Error fetching remote data: ${e.message}")
-                        }
-                    }
-                } else {
-                    // If no local data, fetch only from remote
-                    flow {
-                        try {
-                            val remoteData = fetchDataFromRemote()
-                            emit(remoteData) // Emit remote data
-                        } catch (e: Exception) {
-                            Log.e("WeatherRepository", "Error fetching remote data: ${e.message}")
-                            emit(null) // Emit null in case of an error
-                        }
-                    }
+        return flow {
+            val hasNetworkConnection = networkUtils.hasNetworkConnection()
+
+            val weatherData = if (hasNetworkConnection) {
+                try {
+                    fetchDataFromRemote()
+                } catch (e: Exception) {
+                    Log.e("WeatherRepository", "Error fetching weather data: ${e.message}")
+                    throw e
                 }
+            } else {
+                fetchDataFromLocal()
             }
-    }
 
-    // Helper function to fetch local weather data
-    private suspend fun fetchDataFromLocal(): WeatherData? {
-        val currentWeather = weatherDao.getCurrentWeather().firstOrNull()
-        val hourlyWeatherFlow = weatherDao.getHourlyWeather()
-        val dailyWeatherFlow = weatherDao.getDailyWeather()
-
-        return if (currentWeather != null) {
-            WeatherData(
-                currentWeather = currentWeather,
-                hourlyWeather = hourlyWeatherFlow,
-                dailyWeather = dailyWeatherFlow
-            )
-        } else {
-            null
+            emit(weatherData)
+        }.catch { throwable ->
+            Log.e("WeatherRepository", "Uncaught exception: ${throwable.message}")
         }
     }
 
+
+//    fun getWeatherData(): Flow<WeatherData?> {
+//        return networkUtils.observeNetworkState() // Observe network state as a Flow
+//            .flatMapLatest { hasNetworkConnection ->
+//                flow {
+//                    val weatherData = if (hasNetworkConnection) {
+//                        try {
+//                            fetchDataFromRemote()
+//                        } catch (e: Exception) {
+//                            Log.e("WeatherRepository", "Error fetching weather data: ${e.message}")
+//                            throw e
+//                        }
+//                    } else {
+//                        fetchDataFromLocal()
+//                    }
+//
+//                    emit(weatherData)
+//                }
+//            }
+//            .catch { throwable ->
+//                Log.e("WeatherRepository", "Uncaught exception: ${throwable.message}")
+//            }
+//    }
 
     private suspend fun fetchDataFromRemote(): WeatherData {
         // Fetch and process data from the remote API
@@ -105,6 +100,24 @@ class WeatherRepository(
             dailyWeather = weatherDao.getDailyWeather()
         )
     }
+    private suspend fun fetchDataFromLocal(): WeatherData? {
+        // Get local data
+        val currentWeather = weatherDao.getCurrentWeather().firstOrNull()
+        val hourlyWeatherFlow = weatherDao.getHourlyWeather()
+        val dailyWeatherFlow = weatherDao.getDailyWeather()
+
+        if (currentWeather != null) {
+            return WeatherData(
+                currentWeather = currentWeather,
+                hourlyWeather = hourlyWeatherFlow,
+                dailyWeather = dailyWeatherFlow
+            )
+        } else {
+            // Handle the case where no local data exists
+            return null
+        }
+    }
+
     // Get data from the database
      fun getCurrentWeather(): Flow<CurrentWeather> = weatherDao.getCurrentWeather()
      fun getHourlyWeather(): Flow<List<HourlyWeather>> = weatherDao.getHourlyWeather()
