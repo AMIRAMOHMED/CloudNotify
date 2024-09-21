@@ -66,23 +66,35 @@ class HomeFragment : Fragment() {
         hourWeatherAdapter = HourWeatherItemAdapter()
         binding.dayRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.dayRecyclerView.adapter = hourWeatherAdapter
-
-        // Fetch and observe weather data
+// Fetch and observe weather data in the fragment
+        // Fetch and observe weather data in the fragment
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-
+                // Collect the main WeatherData flow
                 weatherRepo.getWeatherData().collect { weatherData ->
-                    Log.d("Fragmeny", "Received weather data: $weatherData")
+                    Log.d("Fragment", "Received weather data: $weatherData")
 
-                    withContext(Dispatchers.Main) {
-                        // Bind the data to the RecyclerView adapter
-                        hourWeatherAdapter.setList(weatherData.hourlyWeather)
+                    // Collect hourly weather flow
+                    if (weatherData != null) {
+                        weatherData.hourlyWeather.collect { hourlyWeatherList ->
+                            // Collect daily weather flow
+                            weatherData.dailyWeather.collect { dailyWeatherList ->
+                                withContext(Dispatchers.Main) {
+                                    // Now you can update the UI on the main thread with the collected data
+                                    Log.d("Fragment", "Hourly weather list: $hourlyWeatherList")
+                                    Log.d("Fragment", "Daily weather list: $dailyWeatherList")
 
-                        // Bind currentWeather to the layout's variable
-                        binding.currentWeather = weatherData.currentWeather
+                                    // Bind the data to the RecyclerView adapter for hourly and daily weather
+                                    hourWeatherAdapter.setList(hourlyWeatherList)
+
+                                    // Optionally bind currentWeather to the layout
+                                    binding.currentWeather = weatherData.currentWeather
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
+        }}
+
 }

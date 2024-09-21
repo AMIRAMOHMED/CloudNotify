@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="currentWeather"
             type="com.example.cloudnotify.data.model.local.CurrentWeather" />
@@ -23,7 +25,40 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+                    <ImageView
+
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/location_on"
+                        app:tint="@color/white" />
+                    <TextView
+                        android:id="@+id/txt_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text='@{"  " + currentWeather.cityName}'
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        />
+
+
+
+
+                </LinearLayout>
+
+
+            <TextView
                     android:id="@+id/txt_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -87,6 +122,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
+
                         android:orientation="horizontal">
 
                         <ImageView
@@ -234,7 +270,9 @@
                     android:clipToPadding="false"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
-                    android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
+                    android:layout_height="match_parent">
+
+                </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
 
         </ScrollView>

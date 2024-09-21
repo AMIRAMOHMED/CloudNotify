@@ -18,5 +18,6 @@ data class CurrentWeather(
     val data: String,
     val hour: String,
     val sunriseTime: String,
-    val sunsetTime: String
+    val sunsetTime: String,
+    val cityName: String
 )

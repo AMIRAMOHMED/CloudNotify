@@ -93,6 +93,7 @@ class Converter {
             hour =formattedHour(response.dt.toLong()),
             sunriseTime =formattedHour(response.sys.sunrise.toLong()),
             sunsetTime =formattedHour(response.sys.sunset.toLong()),
+            cityName = response.name
 
 
             )
