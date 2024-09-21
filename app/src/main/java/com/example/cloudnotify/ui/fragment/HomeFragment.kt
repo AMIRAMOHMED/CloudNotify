@@ -14,7 +14,7 @@ import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
-import com.example.cloudnotify.viewmodel.HomeViewModel.HomeVeiwModel
+import com.example.cloudnotify.viewmodel.HomeViewModel.HomeViewModel
 import com.example.cloudnotify.viewmodel.HomeViewModel.HomeViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class HomeFragment : Fragment() {
     private lateinit var networkUtils: NetworkUtils
     private lateinit var weatherDao: WeatherDao
     private lateinit var hourWeatherAdapter: HourWeatherItemAdapter
-    private lateinit var homeViewModel: HomeVeiwModel
+    private lateinit var homeViewModel: HomeViewModel
     private lateinit var homeViewModelFactory: HomeViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
 
         // Initialize ViewModel
         homeViewModelFactory = HomeViewModelFactory(weatherRepo)
-        homeViewModel = homeViewModelFactory.create(HomeVeiwModel::class.java)
+        homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -64,37 +64,30 @@ class HomeFragment : Fragment() {
 
         // Initialize RecyclerView and adapter with binding
         hourWeatherAdapter = HourWeatherItemAdapter()
-        binding.dayRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.dayRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.dayRecyclerView.adapter = hourWeatherAdapter
+
+
 // Fetch and observe weather data in the fragment
-        // Fetch and observe weather data in the fragment
+        observeViewModel()
+
+
+    }
+    private fun observeViewModel() {
         lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                // Collect the main WeatherData flow
-                weatherRepo.getWeatherData().collect { weatherData ->
-                    Log.d("Fragment", "Received weather data: $weatherData")
-
-                    // Collect hourly weather flow
-                    if (weatherData != null) {
-                        weatherData.hourlyWeather.collect { hourlyWeatherList ->
-                            // Collect daily weather flow
-                            weatherData.dailyWeather.collect { dailyWeatherList ->
-                                withContext(Dispatchers.Main) {
-                                    // Now you can update the UI on the main thread with the collected data
-                                    Log.d("Fragment", "Hourly weather list: $hourlyWeatherList")
-                                    Log.d("Fragment", "Daily weather list: $dailyWeatherList")
-
-                                    // Bind the data to the RecyclerView adapter for hourly and daily weather
-                                    hourWeatherAdapter.setList(hourlyWeatherList)
-
-                                    // Optionally bind currentWeather to the layout
-                                    binding.currentWeather = weatherData.currentWeather
-                                }
-                            }
-                        }
-                    }
-                }
+            // Collect hourly weather data
+            homeViewModel.hourlyWeather.collect { hourlyWeatherList ->
+                hourWeatherAdapter.setList(hourlyWeatherList)
             }
-        }}
+        }
 
+        lifecycleScope.launch {
+            // Collect current weather data
+            homeViewModel.currentWeather.collect { currentWeather ->
+                // Update UI with current weather
+                binding.currentWeather = currentWeather // Ensure this is bound correctly in XML
+            }
+        }
+    }
 }

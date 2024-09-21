@@ -70,7 +70,15 @@ dependencies {
     implementation(libs.squareup.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+    dependencies {
+        val lifecycle_version = "2.8.6"
 
+        // ViewModel
+        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+        // ViewModel utilities for Compose
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+        // LiveData
+        implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -80,4 +88,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
 }

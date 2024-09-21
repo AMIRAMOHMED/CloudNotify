@@ -118,6 +118,12 @@ class WeatherRepository(
         }
     }
 
+    // Get data from the database
+     fun getCurrentWeather(): Flow<CurrentWeather> = weatherDao.getCurrentWeather()
+     fun getHourlyWeather(): Flow<List<HourlyWeather>> = weatherDao.getHourlyWeather()
+     fun getDailyWeather(): Flow<List<DailyWeather>> = weatherDao.getDailyWeather()
+
+
 
     // Insert into the database
      fun insertCurrentWeather(currentWeather: CurrentWeather) = weatherDao.insertCurrentWeather(currentWeather)

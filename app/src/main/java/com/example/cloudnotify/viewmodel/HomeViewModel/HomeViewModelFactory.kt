@@ -6,8 +6,8 @@ import com.example.cloudnotify.data.repo.WeatherRepository
 
 class HomeViewModelFactory(private val repository: WeatherRepository)  : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HomeVeiwModel::class.java)) {
-            return HomeVeiwModel(repository) as T
+        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            return HomeViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
