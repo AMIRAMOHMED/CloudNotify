@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.cloudnotify.R
 import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.repo.WeatherRepository
@@ -16,6 +18,7 @@ import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
 import kotlinx.coroutines.launch
+
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
@@ -38,7 +41,9 @@ class HomeFragment : Fragment() {
         // Initialize WeatherRepository with dependencies
         weatherRepo = WeatherRepository(
             weatherDao,
-            networkUtils
+            networkUtils,
+            requireActivity().application
+
         )
 
         // Initialize ViewModel
@@ -54,6 +59,7 @@ class HomeFragment : Fragment() {
     ): View {
         // Use view binding to inflate the layout
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
@@ -66,13 +72,39 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.dayRecyclerView.adapter = hourWeatherAdapter
 
+        // Check location permissions
+        checkLocationPermissions()
 
-// Fetch and observe weather data in the fragment
+        // Set up the SearchView
+        setupSearchView()
+
+
+        // Fetch and observe weather data in the fragment
         observeViewModel()
-        homeViewModel.getLatLongFromCity("London")
-
-
     }
+
+    private fun setupSearchView() {
+        val searchView: SearchView = binding.root.findViewById(R.id.search_view)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let {
+                    performSearch(it)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+    }
+
+    private fun performSearch(query: String) {
+        // Trigger the ViewModel method to fetch latitude and longitude for the city
+        homeViewModel.getLatLongFromCity(query)
+        Toast.makeText(context, "Searching for: $query", Toast.LENGTH_SHORT).show()
+    }
+
     private fun observeViewModel() {
         lifecycleScope.launch {
             // Collect hourly weather data
@@ -89,6 +121,7 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
     private val LOCATION_PERMISSION_REQUEST_CODE = 100
 
     private fun checkLocationPermissions() {
@@ -114,7 +147,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -129,10 +161,5 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(), "Location permission is required", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        homeViewModel.getCurrentLocation()
     }
 }

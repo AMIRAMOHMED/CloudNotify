@@ -59,6 +59,7 @@ android {
 
 dependencies {
     implementation(libs.play.services.location)
+    implementation(libs.androidx.ui.desktop)
     val room_version = "2.6.1"
 
     implementation(libs.androidx.room.runtime)
@@ -77,11 +78,7 @@ dependencies {
     dependencies {
         val lifecycle_version = "2.8.6"
 
-        // ViewModel
         implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-        // ViewModel utilities for Compose
-        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
-        // LiveData
         implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

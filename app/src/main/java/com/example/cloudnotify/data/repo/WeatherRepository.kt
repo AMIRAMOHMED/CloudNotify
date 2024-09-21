@@ -1,9 +1,11 @@
 package com.example.cloudnotify.data.repo
 
+import android.app.Application
 import android.util.Log
 import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.data.local.db.WeatherDao
+import com.example.cloudnotify.data.local.sharedPrefrence.SharedPreferencesManager
 import com.example.cloudnotify.data.model.local.CurrentWeather
 import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.data.model.local.HourlyWeather
@@ -17,9 +19,12 @@ import kotlinx.coroutines.flow.flow
 
 class WeatherRepository(
     private val weatherDao: WeatherDao,
-    private val networkUtils: NetworkUtils
+    private val networkUtils: NetworkUtils,
+    private val application: Application
 ) {
     private val converter = Converter()
+    private val sharedPreferencesManager = SharedPreferencesManager(application)
+
 
     // Container class to hold all weather data types
     data class WeatherData(
@@ -50,28 +55,6 @@ class WeatherRepository(
     }
 
 
-//    fun getWeatherData(): Flow<WeatherData?> {
-//        return networkUtils.observeNetworkState() // Observe network state as a Flow
-//            .flatMapLatest { hasNetworkConnection ->
-//                flow {
-//                    val weatherData = if (hasNetworkConnection) {
-//                        try {
-//                            fetchDataFromRemote()
-//                        } catch (e: Exception) {
-//                            Log.e("WeatherRepository", "Error fetching weather data: ${e.message}")
-//                            throw e
-//                        }
-//                    } else {
-//                        fetchDataFromLocal()
-//                    }
-//
-//                    emit(weatherData)
-//                }
-//            }
-//            .catch { throwable ->
-//                Log.e("WeatherRepository", "Uncaught exception: ${throwable.message}")
-//            }
-//    }
 
     private suspend fun fetchDataFromRemote(): WeatherData {
         // Fetch and process data from the remote API
@@ -133,10 +116,15 @@ class WeatherRepository(
      fun deleteHourlyWeather() = weatherDao.deleteAllHourlyWeather()
      fun deleteDailyWeather() = weatherDao.deleteAllDailyWeather()
 
+    //get From Shared Preferences
+    fun getGpsLocationLat() =  sharedPreferencesManager.getGpsLocationLat()
+    fun getGpsLocationLong() =  sharedPreferencesManager.getGpsLocationLong()
+
+
     // Remote interactions
     suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse =
-        RetrofitInstance.api.getCurrentWeather(51.5072178, -0.12758619999999998)
+        RetrofitInstance.api.getCurrentWeather(getGpsLocationLat().toDouble(), getGpsLocationLong().toDouble())
 
     suspend fun getForecastWeatherFromRemote(): WeatherForecastFor7DayResponse =
-        RetrofitInstance.api.getWeatherForecast(51.5072178, -0.12758619999999998)
+        RetrofitInstance.api.getWeatherForecast(getGpsLocationLat().toDouble(), getGpsLocationLong().toDouble())
 }

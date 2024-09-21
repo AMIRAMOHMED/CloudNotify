@@ -6,10 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.cloudnotify.Utility.LocationSource
 import com.example.cloudnotify.data.model.local.CurrentWeather
 import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.data.model.local.HourlyWeather
 import com.example.cloudnotify.data.repo.WeatherRepository
+import com.example.cloudnotify.viewmodel.LocationViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,9 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 class HomeViewModel(private val repo: WeatherRepository, application: Application) : AndroidViewModel(application) {
+
+    private val locationViewModel = LocationViewModel(application)
+
 
     private val _hourlyWeather = MutableStateFlow<List<HourlyWeather>>(emptyList())
     val hourlyWeather: StateFlow<List<HourlyWeather>> get() = _hourlyWeather
@@ -72,12 +77,17 @@ fun getLatLongFromCity(cityName: String) {
             val address = addresses[0]
             val latitude = address.latitude
             val longitude = address.longitude
+            locationViewModel.updateLocation(latitude.toLong(), longitude.toLong())
+            locationViewModel.upDateSource(LocationSource.SEARCH)
 
             // Log or use the latitude and longitude as needed
             Log.d("Geocoding", "City: $cityName, Lat: $latitude, Long: $longitude")
 
+
             // You could also update LiveData or StateFlow to expose this to the UI
             _locationData.postValue(Pair(latitude, longitude))
+            fetchWeatherData()
+
         } else {
             Log.d("Geocoding", "No location found for city: $cityName")
         }
@@ -89,8 +99,15 @@ fun getLatLongFromCity(cityName: String) {
     private fun updateLocation(location: Location) {
         val latitude = location.latitude
         val longitude = location.longitude
+
+
+        // Save location in SharedPreferences
+        locationViewModel.updateLocation(latitude.toLong(), longitude.toLong())
+        locationViewModel.upDateSource(LocationSource.GPS)
+
         Log.d("Location", "updateLocation: " + latitude + "long " + longitude)
         _locationData.postValue(Pair(latitude, longitude))
+
 
         // Reverse geocode the location to get the address
         val geocoder = Geocoder(getApplication<Application>().applicationContext, Locale.getDefault())

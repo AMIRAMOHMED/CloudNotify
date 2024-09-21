@@ -1,5 +1,4 @@
 package com.example.cloudnotify.data.local.sharedPrefrence
-
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
