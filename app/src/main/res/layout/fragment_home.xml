@@ -16,8 +16,7 @@
         android:background="@drawable/background"
         tools:context=".ui.fragment.HomeFragment">
 
-        <ScrollView
-            android:layout_width="match_parent"
+        <androidx.core.widget.NestedScrollView            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <LinearLayout
@@ -28,7 +27,6 @@
                     android:id="@+id/search_view"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
-                    android:hint="Search city"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginTop="5dp"
@@ -275,9 +273,30 @@
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/day_recycler_view"
+                    android:id="@+id/hour_recycler_view"
                     android:layout_width="match_parent"
                     android:clipToPadding="false"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="wrap_content">
+
+                </androidx.recyclerview.widget.RecyclerView>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/today"
+                    android:textColor="@color/yellow"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+android:layout_marginTop="10dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_height="wrap_content">
+
+                </TextView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/day_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
                     android:layout_height="match_parent">
@@ -285,7 +304,7 @@
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
 
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
 
     </FrameLayout>
 </layout>

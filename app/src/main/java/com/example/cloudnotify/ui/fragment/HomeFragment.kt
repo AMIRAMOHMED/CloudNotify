@@ -17,6 +17,7 @@ import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
+import com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -28,6 +29,7 @@ class HomeFragment : Fragment() {
     private lateinit var hourWeatherAdapter: HourWeatherItemAdapter
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var homeViewModelFactory: HomeViewModelFactory
+    private lateinit var  dailyWeatherItemAdapter: DailyWeatherItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,9 +70,14 @@ class HomeFragment : Fragment() {
 
         // Initialize RecyclerView and adapter with binding
         hourWeatherAdapter = HourWeatherItemAdapter()
-        binding.dayRecyclerView.layoutManager =
+        dailyWeatherItemAdapter= DailyWeatherItemAdapter()
+
+        binding.hourRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.dayRecyclerView.adapter = hourWeatherAdapter
+        binding.hourRecyclerView.adapter = hourWeatherAdapter
+        binding.dayRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.dayRecyclerView.adapter = dailyWeatherItemAdapter
 
         // Check location permissions
         checkLocationPermissions()
@@ -118,6 +125,12 @@ class HomeFragment : Fragment() {
             homeViewModel.currentWeather.collect { currentWeather ->
                 // Update UI with current weather
                 binding.currentWeather = currentWeather // Ensure this is bound correctly in XML
+            }
+        }
+
+        lifecycleScope.launch {
+            homeViewModel.dailyWeather.collect{dailyWeather ->
+                dailyWeatherItemAdapter.setList(dailyWeather)
             }
         }
     }
