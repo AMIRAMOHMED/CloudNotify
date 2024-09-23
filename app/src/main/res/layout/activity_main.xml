@@ -20,7 +20,7 @@
         android:layout_height="50dp"
         android:elevation="4dp"
         android:id="@+id/toolbar"
-        android:background="@color/purple"
+        android:background="@color/dark_blue"
 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         />

@@ -14,4 +14,5 @@
     <string name="humidity">Humidity</string>
     <string name="today">Today</string>
     <string name="next_7_days"><![CDATA[Next 7 Days >]]></string>
+    <string name="_5_day_forecast">  5-DAY FORECAST</string>
 </resources>
