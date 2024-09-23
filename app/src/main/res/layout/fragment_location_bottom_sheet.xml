@@ -1,0 +1,77 @@
+<!-- fragment_location_bottom_sheet.xml -->
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="250dp"
+    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@color/dark_blue"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    >
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:background="@color/dark_blue"
+       android:orientation="vertical"
+       android:padding="10dp"
+       >
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+android:id="@+id/txt_city"
+        android:textSize="22sp"
+        android:textColor="@color/white"
+        android:text="dfkjnd,nfdm,s"
+        />
+
+
+    <ImageView
+        android:id="@+id/img_weather"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+android:layout_marginTop="10dp"
+        android:src="@drawable/favorite"
+android:background="@color/white"
+        android:backgroundTint="@color/white"
+        />
+       <LinearLayout
+           android:layout_width="match_parent"
+android:layout_marginTop="10dp"
+           android:layout_height="50dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_waether"
+        android:textSize="22sp"
+        android:textColor="@color/white"
+        android:text="dfkjnd,nfdm,s"
+        />
+           <TextView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:id="@+id/txt_temp"
+               android:textSize="22sp"
+               android:layout_marginLeft="20dp"
+               android:textColor="@color/white"
+               android:text="20 c"
+               />
+           <ImageView
+               android:id="@+id/img_favorite"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:layout_marginStart="100dp"
+               android:clickable="true"
+               android:focusable="true"
+               android:src="@drawable/favorite"
+               android:background="@color/white"
+               android:contentDescription="@string/saved_to_bookmark"
+           android:backgroundTint="@color/white" />
+
+       </LinearLayout>
+
+   </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -60,6 +60,8 @@ android {
 dependencies {
     implementation(libs.play.services.location)
     implementation(libs.androidx.ui.desktop)
+    implementation(libs.play.services.maps)
+    implementation(libs.androidx.preference.ktx)
     val room_version = "2.6.1"
 
     implementation(libs.androidx.room.runtime)
@@ -80,7 +82,10 @@ dependencies {
 
         implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-    implementation(libs.androidx.core.ktx)
+        //map
+        implementation ("org.osmdroid:osmdroid-android:6.1.12")
+
+        implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

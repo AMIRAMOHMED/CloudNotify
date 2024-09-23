@@ -79,14 +79,6 @@
                     android:textColor="@color/white"
                     android:textSize="28sp" />
 
-                <ImageView
-                    android:id="@+id/img_weather"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:src="@drawable/favorite" />
-
                 <TextView
                     android:id="@+id/txt_date"
                     android:layout_width="match_parent"
@@ -155,6 +147,14 @@
                             android:src="@drawable/humidity"
 
                             />
+
+                        <ImageView
+                            android:id="@+id/img_weather"
+                            android:layout_width="150dp"
+                            android:layout_height="150dp"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="16dp"
+                            android:src="@drawable/favorite" />
 
                     </LinearLayout>
 
@@ -265,13 +265,14 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/hour_recycler_view"
                     android:layout_width="match_parent"
-                    android:clipToPadding="false"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
                     android:layout_marginTop="10dp"
-                    android:layout_height="wrap_content">
+                    android:layout_marginEnd="20dp"
+                    android:clipToPadding="false">
 
                 </androidx.recyclerview.widget.RecyclerView>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:text="@string/_5_day_forecast"
@@ -283,16 +284,30 @@ android:layout_marginTop="10dp"
                     android:layout_height="wrap_content">
 
                 </TextView>
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/day_recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/background3"
+                    android:layout_height="match_parent"
                     android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginEnd="20dp"
-                    android:layout_height="match_parent">
+                    android:background="@drawable/background3">
 
                 </androidx.recyclerview.widget.RecyclerView>
+
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/btn_add_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="340dp"
+                    android:layout_marginBottom="60dp"
+                    app:icon="@drawable/add_location"
+                    app:iconTint="@color/white"
+                    app:backgroundTint="@color/soft_purple" />
+
+
+
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>

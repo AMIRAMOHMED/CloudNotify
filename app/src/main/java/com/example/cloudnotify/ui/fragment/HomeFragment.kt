@@ -1,4 +1,5 @@
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter
+import com.example.cloudnotify.ui.fragment.MapFragment
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -78,6 +80,24 @@ class HomeFragment : Fragment() {
         binding.dayRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.dayRecyclerView.adapter = dailyWeatherItemAdapter
+
+
+
+        // Add a click listener to the add location button
+        binding.btnAddLocation.setOnClickListener {
+            // Create an instance of the destination fragment (MapFragment)
+            val mapFragment = MapFragment()
+
+            // Get the FragmentManager and start a transaction to replace the current fragment
+            val transaction = parentFragmentManager.beginTransaction()
+
+            // Replace the fragment and add the transaction to the back stack (so user can navigate back)
+            transaction.replace(R.id.fragment_container, mapFragment)
+            transaction.addToBackStack(null)  // Add this if you want the user to be able to go back
+
+            // Commit the transaction
+            transaction.commit()
+        }
 
         // Check location permissions
         checkLocationPermissions()
