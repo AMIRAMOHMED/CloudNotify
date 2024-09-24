@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.NetworkUtils
@@ -17,8 +18,9 @@ import com.example.cloudnotify.data.model.local.BookmarkLocation
 import com.example.cloudnotify.data.repo.BookmarkRepository
 import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.databinding.FragmentLocationBottomSheetBinding
+import com.example.cloudnotify.viewmodel.map.BookmarkViewModel
+import com.example.cloudnotify.viewmodel.map.BookmarkViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 class LocationBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var weatherRepo: WeatherRepository
@@ -30,7 +32,9 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
 private lateinit var bookmarkLocationDao: BookmarkLocationDao
 private lateinit var bookmarkRepository: BookmarkRepository
 
-
+    private val bookmarkViewModel: BookmarkViewModel by viewModels {
+        BookmarkViewModelFactory(bookmarkRepository)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 // Initialize WeatherDao
@@ -114,35 +118,32 @@ binding.imgFavorite.setOnClickListener {
                         temperature = currentWeather.temperature
                     )
 
-                    // Launch a coroutine to check if item is in favorites
-                    val isFavorite = bookmarkRepository.isBookmarkFavorite(currentWeatherItem.id)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        bookmarkViewModel.isBookmarkFavorite(currentWeatherItem.id).collect { isFavorite ->
+                            binding.imgFavorite.setImageResource(
+                                if (isFavorite) R.drawable.bookmark_remove else R.drawable.bookmark_add
+                            )
+                            dismiss()
 
 
+                            binding.imgFavorite.setOnClickListener {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    bookmarkViewModel.toggleBookmark(currentWeatherItem, isFavorite).collect { newIsFavorite ->
+                                        binding.imgFavorite.setImageResource(
+                                            if (newIsFavorite) R.drawable.bookmark else R.drawable.bookmark_remove
+                                        )
 
-                    // Set up click listener for the favorite button
-                    binding.imgFavorite.setOnClickListener {
-                        launch(Dispatchers.IO) {
-                            // Toggle favorite status or add it as needed
-                            if (!isFavorite) {
-                                bookmarkRepository.insertBookmark(currentWeatherItem)
-                                Log.i("bookmark", "observeViewModel: "+"added")
-                                   val favouriteFragment=FavouriteFragment()
-                                val transaction = parentFragmentManager.beginTransaction()
-                                transaction.replace(R.id.fragment_container, favouriteFragment)
-                                transaction.addToBackStack(null)
-                                transaction.commit()
-
-dismiss()
-
-                            } else {
-                                bookmarkRepository.deleteBookmarkById(currentWeatherItem.id)
-                                Log.i("bookmark", "observeViewModel: "+"deleted")
-                                dismiss()
+                                        val favouriteFragment=FavouriteFragment()
+                                        val transaction = parentFragmentManager.beginTransaction()
+                                        transaction.replace(R.id.fragment_container, favouriteFragment)
+                                        transaction.addToBackStack(null)
+                                        transaction.commit()
+                                        dismiss()
+                                    }
+                                }
                             }
                         }
                     }
-                } ?: Log.e("TAG", "Current weather data is null")
+                }
             }
-        }
-    }
-}
+        }}}
