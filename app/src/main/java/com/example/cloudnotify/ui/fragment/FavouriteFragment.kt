@@ -19,9 +19,10 @@ import com.example.cloudnotify.ui.adapters.OnCardClickListener
 import com.example.cloudnotify.ui.adapters.OnRemoveClickListener
 import com.example.cloudnotify.viewmodel.LocationViewModel
 import com.example.cloudnotify.viewmodel.LocationViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.cloudnotify.viewmodel.favourite.FavouriteViewModel
+import com.example.cloudnotify.viewmodel.favourite.FavouriteViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
+
 
 
 
@@ -31,22 +32,25 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListene
     lateinit var bookMarkedItemAdapter: BookMarkedItemAdapter
     private lateinit var bookmarkLocationDao: BookmarkLocationDao
     private lateinit var bookmarkRepository: BookmarkRepository
-    private  lateinit var locationViewModelFactory: LocationViewModelFactory
     private  lateinit var locationViewModel: LocationViewModel
+    private lateinit var favouriteViewModel: FavouriteViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize BookmarkLocationDao
-        bookmarkLocationDao = WeatherDataBase.getInstance(requireActivity()).bookmarkLocationDao
+        val bookmarkLocationDao = WeatherDataBase.getInstance(requireActivity()).bookmarkLocationDao
+
         // Initialize BookmarkRepository with dependencies
-        bookmarkRepository = BookmarkRepository(
-            bookmarkLocationDao,
+        val bookmarkRepository = BookmarkRepository(bookmarkLocationDao)
 
-            )
-        // Initialize ViewModel
-        locationViewModelFactory = LocationViewModelFactory( requireActivity().application)
+        // Initialize ViewModel for this fragment
+        val favouriteViewModelFactory = FavouriteViewModelFactory(bookmarkRepository)
+        favouriteViewModel = favouriteViewModelFactory.create(FavouriteViewModel::class.java)
+
+        // Initialize LocationViewModel (shared)
+        val locationViewModelFactory = LocationViewModelFactory(requireActivity().application)
         locationViewModel = locationViewModelFactory.create(LocationViewModel::class.java)
-
     }
 
     override fun onCreateView(
@@ -64,44 +68,32 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListene
             LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
         binding.recyclerView.adapter=bookMarkedItemAdapter
 
-        updatedBookmarkList()
+        observeBookmarkList()
 
     }
-private fun updatedBookmarkList() {
-    lifecycleScope.launch(Dispatchers.IO) {
 
-        bookmarkRepository.getAllBookmarkLocations().collect() { bookmarkList ->
-            withContext(Dispatchers.Main) {
+    private fun observeBookmarkList() {
+        // Collect and observe data from the ViewModel's StateFlow
+        lifecycleScope.launchWhenStarted {
+            favouriteViewModel.bookmarkList.collectLatest { bookmarkList ->
                 bookMarkedItemAdapter.updateData(bookmarkList)
-
             }
         }
     }
 
-}
-
     override fun onRemoveClick(bookmarkLocation: BookmarkLocation) {
-
-        lifecycleScope.launch(Dispatchers.IO) {
-
-            bookmarkRepository.deleteBookmarkById(bookmarkLocation.id)
-
-
-        }
-
+        favouriteViewModel.deleteBookmark(bookmarkLocation)
     }
 
     override fun onCardClick(bookmarkLocation: BookmarkLocation) {
-        locationViewModel.updateLocation(bookmarkLocation.latitude.toLong(),bookmarkLocation.longitude.toLong())
+        locationViewModel.updateLocation(bookmarkLocation.latitude.toLong(), bookmarkLocation.longitude.toLong())
         locationViewModel.upDateSource(LocationSource.SEARCH)
-        val transaction = parentFragmentManager.beginTransaction()
-        val homeFragment=HomeFragment()
 
+        val transaction = parentFragmentManager.beginTransaction()
+        val homeFragment = HomeFragment()
         transaction.replace(R.id.fragment_container, homeFragment)
         transaction.addToBackStack(null)
         transaction.commit()
-
-
     }
 }
 
