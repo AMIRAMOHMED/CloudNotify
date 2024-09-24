@@ -13,7 +13,6 @@ class DailyWeatherItemAdapter: RecyclerView.Adapter<DailyWeatherItemAdapter.Dail
     private var weather = listOf<DailyWeather>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyWeatherItemViewHolder {
-        // Correct the binding class for daily weather
         val binding: ViewholderDailyBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.viewholder_daily, parent, false
