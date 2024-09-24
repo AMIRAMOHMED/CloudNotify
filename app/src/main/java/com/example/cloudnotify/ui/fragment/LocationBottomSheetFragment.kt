@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.data.local.db.BookmarkLocationDao
 import com.example.cloudnotify.data.local.db.WeatherDao
@@ -125,10 +126,18 @@ binding.imgFavorite.setOnClickListener {
                             if (!isFavorite) {
                                 bookmarkRepository.insertBookmark(currentWeatherItem)
                                 Log.i("bookmark", "observeViewModel: "+"added")
+                                   val favouriteFragment=FavouriteFragment()
+                                val transaction = parentFragmentManager.beginTransaction()
+                                transaction.replace(R.id.fragment_container, favouriteFragment)
+                                transaction.addToBackStack(null)
+                                transaction.commit()
+
+dismiss()
 
                             } else {
                                 bookmarkRepository.deleteBookmarkById(currentWeatherItem.id)
                                 Log.i("bookmark", "observeViewModel: "+"deleted")
+                                dismiss()
                             }
                         }
                     }

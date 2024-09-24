@@ -76,10 +76,10 @@
                     android:layout_marginStart="100dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/favorite"
-                    android:background="@color/white"
+                    android:src="@drawable/bookmark_add"
+                    app:tint="@color/white"
                     android:contentDescription="@string/saved_to_bookmark"
-                    android:backgroundTint="@color/white" />
+                />
 
             </LinearLayout>
 

@@ -24,17 +24,22 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.MapEventsOverlay
 
+
+
 class MapFragment : Fragment(), LocationListener {
 
     private var mapView: MapView? = null
     private var currentLocationMarker: Marker? = null
     private var clickedLocationMarker: Marker? = null
     private lateinit var locationViewModel: LocationViewModel
-
+    private var lastClickedLocation: GeoPoint? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize the library
-        Configuration.getInstance().load(requireActivity(), PreferenceManager.getDefaultSharedPreferences(requireActivity()))
+        Configuration.getInstance().load(
+            requireActivity(),
+            PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        )
     }
 
     override fun onCreateView(
@@ -73,8 +78,15 @@ class MapFragment : Fragment(), LocationListener {
     private fun setupMapClickListener() {
         val mapEventsReceiver = object : MapEventsReceiver {
             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
-                // Handle the map click and add a marker
-                addClickedLocationMarker(p)
+                // Check if the clicked location is the same as the last one
+                if (lastClickedLocation == null || p != lastClickedLocation) {
+                    // Update last clicked location
+                    lastClickedLocation = p
+                    // Add a marker for the new location
+                    addClickedLocationMarker(p)
+                }
+
+                // Always show the bottom sheet, even if it's the same location
                 showLocationBottomSheet(p)
 
                 return true
@@ -84,19 +96,19 @@ class MapFragment : Fragment(), LocationListener {
                 // Handle long press if needed
                 return false
             }
+
             private fun showLocationBottomSheet(point: GeoPoint) {
                 val locationDetails = "Lat: ${point.latitude}, Lon: ${point.longitude}"
 
                 // Save the clicked location details
                 locationViewModel.updateLocation(point.latitude.toLong(), point.longitude.toLong())
-locationViewModel.upDateSource(LocationSource.MAP)
+                locationViewModel.upDateSource(LocationSource.MAP)
 
                 // Create and show the bottom sheet
                 val bottomSheetFragment = LocationBottomSheetFragment.newInstance(locationDetails)
                 bottomSheetFragment.show(parentFragmentManager, "LocationBottomSheet")
             }
         }
-
 
         val mapEventsOverlay = MapEventsOverlay(mapEventsReceiver)
         mapView?.overlays?.add(mapEventsOverlay)
@@ -108,7 +120,6 @@ locationViewModel.upDateSource(LocationSource.MAP)
             mapView?.overlays?.remove(it)
         }
 
-        // Add a new marker for the clicked location with a different icon
         clickedLocationMarker = Marker(mapView).apply {
             position = point
             icon = resources.getDrawable(R.drawable.add_location) // Your clicked location marker icon
@@ -120,19 +131,31 @@ locationViewModel.upDateSource(LocationSource.MAP)
     }
 
     private fun getCurrentLocation() {
-        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Request location permissions if not granted
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ), 1
+            )
             return
         }
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, this)
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onLocationChanged(location: Location) {
         mapView?.let { map ->
             val currentPoint = GeoPoint(location.latitude, location.longitude)
@@ -152,6 +175,8 @@ locationViewModel.upDateSource(LocationSource.MAP)
             map.overlays.add(currentLocationMarker)
             map.controller.setCenter(currentPoint)
             map.invalidate()
+        } ?: run {
+            Log.e("MapFragment", "MapView is null, cannot update location")
         }
     }
 
@@ -163,11 +188,14 @@ locationViewModel.upDateSource(LocationSource.MAP)
     override fun onPause() {
         super.onPause()
         mapView?.onPause()  // Disable map view
+        // Remove location updates to prevent null pointer on mapView
+        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager.removeUpdates(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView?.onDetach()  // Clean up map vie // w
-mapView = null
+        mapView?.onDetach()  // Clean up map view
+        mapView = null
     }
 }
