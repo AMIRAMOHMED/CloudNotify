@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class BookmarkLocation(
     @PrimaryKey (autoGenerate = true)
     val id: Int = 0,
-    val latitude: Int,
-    val longitude: String,
+    val latitude: Double,
+    val longitude: Double,
     val cityName: String,
     val temperature: Int,
     val weatherDescription: String

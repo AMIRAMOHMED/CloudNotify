@@ -106,9 +106,9 @@ binding.imgFavorite.setOnClickListener {
 
                     // Create BookmarkLocation item from current weather
                     val currentWeatherItem = BookmarkLocation(
-                        id = currentWeather.id, // Ensure you have an id for the item
-                        latitude = currentWeather.tempMin, // Use appropriate field for latitude
-                        longitude = currentWeather.cityName, // Use appropriate field for longitude (may want to adjust this)
+                        id = currentWeather.id,
+                        latitude = currentWeather.latitude,
+                        longitude = currentWeather.longitude,
                         cityName = currentWeather.cityName,
                         weatherDescription = currentWeather.weatherDescription,
                         temperature = currentWeather.temperature

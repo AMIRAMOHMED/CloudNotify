@@ -48,7 +48,9 @@ class Converter {
         return mapHourlyWeatherResponseToHourlyWeather(response)
             .groupBy { formattedDate(it.dt.toLong()) }  // Group by formatted date
     }
-
+    fun formattedDayOfWeek(dt: Long): String {
+        return formatDateTime(dt, "EEEE")  // "EEEE" gives the full name of the day (Monday, Tuesday, etc.)
+    }
 
     fun mapWeatherResponseToDailyWithHourly(response: WeatherForecastFor7DayResponse): List<DailyWeather> {
         // Group hourly weather data by day
@@ -58,7 +60,7 @@ class Converter {
         return hourlyWeatherGroupedByDay.map { (day, hourlyWeatherList) ->
 
             DailyWeather(
-                dayOfWeek = day,  // The date for this day
+                dayOfWeek =  formattedDayOfWeek(hourlyWeatherList[0].dt.toLong()),  // The date for this day
                 weatherDescription = hourlyWeatherList[0].weatherDescription,  // Main weather description for the third hour
                 tempMax = hourlyWeatherList[0].tempMax,  // Temperature for the third hour
                 tempMin = hourlyWeatherList[0].tempMin,  // Temperature for the third hour
@@ -93,7 +95,9 @@ class Converter {
             hour =formattedHour(response.dt.toLong()),
             sunriseTime =formattedHour(response.sys.sunrise.toLong()),
             sunsetTime =formattedHour(response.sys.sunset.toLong()),
-            cityName = response.name
+            cityName = response.name,
+            latitude=response.coord.lat,
+            longitude=response.coord.lon,
 
 
             )

@@ -9,15 +9,17 @@ data class CurrentWeather(
     val id: Int = 0,
     val temperature: Int,
     val tempMax: Int,
-    val tempMin: Int,      // Store as Int
+    val tempMin: Int,
     val weatherDescription: String,
     val icon: String,
-    val windSpeed: Int,    // Store as Int
+    val windSpeed: Int,
     val rainPercentage: Int?,
     val humidity: Int,
     val data: String,
     val hour: String,
     val sunriseTime: String,
     val sunsetTime: String,
-    val cityName: String
+    val cityName: String,
+    val latitude : Double,
+    val longitude : Double
 )

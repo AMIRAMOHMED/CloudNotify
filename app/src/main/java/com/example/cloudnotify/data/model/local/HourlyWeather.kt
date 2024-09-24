@@ -8,11 +8,11 @@ import androidx.room.PrimaryKey
 data class HourlyWeather(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,  // Auto-generated ID
-val dt: Int,  // Original timestamp (as received from API)
-val hour: String,  // Formatted hour (e.g., "15:00")
-val weatherDescription: String,  // Weather description
-val temperature: Int,  // Temperature for the hour
+val dt: Int,
+val hour: String,
+val weatherDescription: String,
+val temperature: Int,
     val tempMax: Int,
     val tempMin: Int,
-val icon: String  // Weather icon for the hour
+val icon: String
 )
