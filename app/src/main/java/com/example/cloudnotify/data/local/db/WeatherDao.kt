@@ -45,4 +45,8 @@ interface WeatherDao {
     // Delete all DailyWeather
     @Query("DELETE FROM daily_weather")
      fun deleteAllDailyWeather(): Void
+
+
+
+
 }

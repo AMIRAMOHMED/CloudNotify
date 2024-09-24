@@ -8,12 +8,15 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.cloudnotify.R
+import com.example.cloudnotify.Utility.LocationSource
+import com.example.cloudnotify.viewmodel.LocationViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
@@ -23,9 +26,10 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 
 class MapFragment : Fragment(), LocationListener {
 
-    private lateinit var mapView: MapView
+    private var mapView: MapView? = null
     private var currentLocationMarker: Marker? = null
     private var clickedLocationMarker: Marker? = null
+    private lateinit var locationViewModel: LocationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,16 +48,20 @@ class MapFragment : Fragment(), LocationListener {
         super.onViewCreated(view, savedInstanceState)
 
         mapView = view.findViewById(R.id.mapview)
+        Log.d("MapFragment", "MapView initialized: $mapView")
 
         // Initialize the map
-        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
-        mapView.setBuiltInZoomControls(true)
-        mapView.setMultiTouchControls(true)
+        mapView?.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+        mapView?.setBuiltInZoomControls(true)
+        mapView?.setMultiTouchControls(true)
 
         // Default location (e.g., Alexandria)
         val startPoint = GeoPoint(31.2001, 29.9187)
-        mapView.controller.setZoom(15.0)
-        mapView.controller.setCenter(startPoint)
+        mapView?.controller?.setZoom(15.0)
+        mapView?.controller?.setCenter(startPoint)
+
+        // Initialize the location view model
+        locationViewModel = LocationViewModel(requireActivity().application)
 
         // Get current location and add marker
         getCurrentLocation()
@@ -79,6 +87,10 @@ class MapFragment : Fragment(), LocationListener {
             private fun showLocationBottomSheet(point: GeoPoint) {
                 val locationDetails = "Lat: ${point.latitude}, Lon: ${point.longitude}"
 
+                // Save the clicked location details
+                locationViewModel.updateLocation(point.latitude.toLong(), point.longitude.toLong())
+locationViewModel.upDateSource(LocationSource.MAP)
+
                 // Create and show the bottom sheet
                 val bottomSheetFragment = LocationBottomSheetFragment.newInstance(locationDetails)
                 bottomSheetFragment.show(parentFragmentManager, "LocationBottomSheet")
@@ -87,13 +99,13 @@ class MapFragment : Fragment(), LocationListener {
 
 
         val mapEventsOverlay = MapEventsOverlay(mapEventsReceiver)
-        mapView.overlays.add(mapEventsOverlay)
+        mapView?.overlays?.add(mapEventsOverlay)
     }
 
     private fun addClickedLocationMarker(point: GeoPoint) {
         // Remove the previous clicked location marker if it exists
         clickedLocationMarker?.let {
-            mapView.overlays.remove(it)
+            mapView?.overlays?.remove(it)
         }
 
         // Add a new marker for the clicked location with a different icon
@@ -103,8 +115,8 @@ class MapFragment : Fragment(), LocationListener {
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         }
 
-        mapView.overlays.add(clickedLocationMarker)
-        mapView.invalidate()
+        mapView?.overlays?.add(clickedLocationMarker)
+        mapView?.invalidate()
     }
 
     private fun getCurrentLocation() {
@@ -122,37 +134,40 @@ class MapFragment : Fragment(), LocationListener {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onLocationChanged(location: Location) {
-        val currentPoint = GeoPoint(location.latitude, location.longitude)
+        mapView?.let { map ->
+            val currentPoint = GeoPoint(location.latitude, location.longitude)
 
-        // Remove the previous location marker if it exists
-        currentLocationMarker?.let {
-            mapView.overlays.remove(it)
+            // Remove the previous location marker if it exists
+            currentLocationMarker?.let {
+                map.overlays.remove(it)
+            }
+
+            // Add a marker for the current location
+            currentLocationMarker = Marker(map).apply {
+                position = currentPoint
+                icon = resources.getDrawable(R.drawable.location_on)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            }
+
+            map.overlays.add(currentLocationMarker)
+            map.controller.setCenter(currentPoint)
+            map.invalidate()
         }
-
-        // Add a marker for the current location
-        currentLocationMarker = Marker(mapView).apply {
-            position = currentPoint
-            icon = resources.getDrawable(R.drawable.location_on) // Your current location marker icon
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        }
-
-        mapView.overlays.add(currentLocationMarker)
-        mapView.controller.setCenter(currentPoint)
-        mapView.invalidate()
     }
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()  // Enable map view
+        mapView?.onResume()  // Enable map view
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()  // Disable map view
+        mapView?.onPause()  // Disable map view
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView.onDetach()  // Clean up map view
+        mapView?.onDetach()  // Clean up map vie // w
+mapView = null
     }
 }

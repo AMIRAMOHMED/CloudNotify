@@ -65,15 +65,15 @@ class WeatherRepository(
         val hourlyWeatherList = converter.getCurrentDayHourlyWeather(forecastResponse)
         val dailyWeatherList = converter.mapWeatherResponseToDailyWithHourly(forecastResponse)
 
-
+if (  sharedPreferencesManager.getLocationSource()=="GPS") {
 // Clear old data and insert new data
-        deleteCurrentWeather()
-        deleteHourlyWeather()
-        deleteDailyWeather()
-        insertCurrentWeather(currentWeather)
-        insertHourlyWeather(hourlyWeatherList)
-        insertDailyWeather(dailyWeatherList)
-
+    deleteCurrentWeather()
+    deleteHourlyWeather()
+    deleteDailyWeather()
+    insertCurrentWeather(currentWeather)
+    insertHourlyWeather(hourlyWeatherList)
+    insertDailyWeather(dailyWeatherList)
+}
         // Return WeatherData
         return WeatherData(
             currentWeather = currentWeather,

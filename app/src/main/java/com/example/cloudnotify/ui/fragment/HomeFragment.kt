@@ -144,7 +144,7 @@ class HomeFragment : Fragment() {
             // Collect current weather data
             homeViewModel.currentWeather.collect { currentWeather ->
                 // Update UI with current weather
-                binding.currentWeather = currentWeather // Ensure this is bound correctly in XML
+                binding.currentWeather = currentWeather
             }
         }
 

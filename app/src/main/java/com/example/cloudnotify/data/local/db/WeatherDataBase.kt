@@ -5,15 +5,18 @@ import androidx.room.Database
 import androidx.room.Room
 
 import androidx.room.RoomDatabase
+import com.example.cloudnotify.data.model.local.BookmarkLocation
 import com.example.cloudnotify.data.model.local.CurrentWeather
 import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.data.model.local.HourlyWeather
 @Database(
-    entities = [CurrentWeather::class, HourlyWeather::class, DailyWeather::class],
-    version = 2
+    entities = [CurrentWeather::class, HourlyWeather::class, DailyWeather::class, BookmarkLocation::class],
+    version = 4
 )
 abstract class WeatherDataBase : RoomDatabase() {
     abstract val weatherDao: WeatherDao
+    abstract val bookmarkLocationDao : BookmarkLocationDao
+
 
     companion object {
         @Volatile
@@ -24,7 +27,8 @@ abstract class WeatherDataBase : RoomDatabase() {
                     context.applicationContext,
                     WeatherDataBase::class.java,
                     "weather_database"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
