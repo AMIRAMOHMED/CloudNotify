@@ -23,8 +23,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
-
 import android.util.Log
+import android.widget.EditText
 import com.example.cloudnotify.broadcastreceiver.BroadcastReceiver
 import com.example.cloudnotify.R
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -85,29 +85,47 @@ class AlarmFragment : Fragment() {
     // Show the date picker and then time picker when adding a new alert
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showAlertDialog() {
-        val calendar = Calendar.getInstance()  // Initialize calendar with the current date and time
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_add_alarm, null)
 
-        // Show date picker dialog
+        val titleInput = dialogView.findViewById<EditText>(R.id.title_input)
+
+        builder.setView(dialogView)
+            .setTitle("Set Alarm or Notification")
+            .setPositiveButton("Next") { _, _ ->
+                val title = titleInput.text.toString()
+                if (title.isEmpty()) {
+                    Toast.makeText(requireContext(), "Title cannot be empty", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Proceed to select date and time
+                    showDateTimePicker(title)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showDateTimePicker(title: String) {
+        val calendar = Calendar.getInstance()
+
         val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
-                // Set the selected date in the calendar
                 calendar.set(Calendar.YEAR, year)
                 calendar.set(Calendar.MONTH, month)
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                // Show time picker dialog
                 TimePickerDialog(
                     requireContext(),
                     { _, hourOfDay, minute ->
-                        // Set the selected time in the calendar
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
                         calendar.set(Calendar.MINUTE, minute)
                         calendar.set(Calendar.SECOND, 0)
                         calendar.set(Calendar.MILLISECOND, 0)
 
-                        // Show dialog to select the type of alert (Alarm or Notification)
-                        showTypeDialog(calendar)
+                        // Proceed to set the alarm or notification with the provided title
+                        showTypeDialog(calendar,title)
                     }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false
                 ).show()
             },
@@ -118,91 +136,88 @@ class AlarmFragment : Fragment() {
         datePickerDialog.show()
     }
 
+
     // Show a dialog to choose between setting an Alarm or a Notification
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun showTypeDialog(calendar: Calendar) {
+    private fun showTypeDialog(calendar: Calendar, title: String) {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Select Type")  // Title of the dialog
+        builder.setTitle("Select Type")
 
-        val types = arrayOf("Alarm", "Notification")  // Options to choose from
+        val types = arrayOf("Alarm", "Notification")
         builder.setItems(types) { _, which ->
-            // Update the request code to ensure uniqueness
             updateRequestCode()
-
-            // Call the appropriate method based on user selection
             when (which) {
-                0 -> checkAlarmPermission(calendar)  // Handle Alarm
-                1 -> checkNotificationPermission(calendar)  // Handle Notification
+                0 -> checkAlarmPermission(calendar, title)
+                1 -> checkNotificationPermission(calendar, title)
             }
         }
         builder.show()
     }
 
+
     // Check if the app has permission to set exact alarms (required for Android S+)
-    private fun checkAlarmPermission(calendar: Calendar) {
+    private fun checkAlarmPermission(calendar: Calendar, title: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestExactAlarmPermission(calendar)  // Request exact alarm permission if needed
+            requestExactAlarmPermission(calendar, title)  // Request exact alarm permission if needed
         } else {
-            setAlarm(calendar)  // Otherwise, set the alarm directly
+            setAlarm(calendar, title)  // Otherwise, set the alarm directly
         }
     }
 
     // Check if the app has permission to post notifications (required for Android T+)
     @SuppressLint("NewApi")
-    private fun checkNotificationPermission(calendar: Calendar) {
+    private fun checkNotificationPermission(calendar: Calendar, title: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestNotificationPermission(calendar)  // Request notification permission if needed
+            requestNotificationPermission(calendar, title)  // Request notification permission if needed
         } else {
-            showNotification(calendar)  // Otherwise, show the notification directly
+            showNotification(calendar, title)  // Otherwise, show the notification directly
         }
     }
 
     // Set an alarm at the specified time
-    private fun setAlarm(calendar: Calendar) {
+    private fun setAlarm(calendar: Calendar, title: String) {
         // Ensure the selected time is in the future
         if (calendar.before(Calendar.getInstance())) {
-            Toast.makeText(requireContext(), "Cannot set alarm for past time!", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(requireContext(), "Cannot set alarm for past time!", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val alarmTimeInMillis = calendar.timeInMillis  // Get the alarm time in milliseconds
-        Log.d("AlarmTime", "Setting alarm for: $alarmTimeInMillis (${calendar.time})")
+        val alarmTimeInMillis = calendar.timeInMillis
+        Log.d("AlarmTime", "Setting alarm for: $alarmTimeInMillis (${calendar.time}) with title $title")
 
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(requireContext(), BroadcastReceiver::class.java)
 
-        // Intent for triggering the alarm via BroadcastReceiver
+        // Pass the scheduled time and title
+        intent.putExtra("SCHEDULED_TIME", alarmTimeInMillis)
+        intent.putExtra("ALARM_TITLE", title)
         intent.action = "Alarm"
+
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
-            requestCode,
+            getRequestCodeFromPreferences(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         try {
-            // Schedule the exact alarm
+            // Set the alarm
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 alarmTimeInMillis,
                 pendingIntent
             )
 
-            // Check if the app has permission to show overlays (for showing UI elements over other apps)
+            // Check Overlay Permission
             checkOverlayPermission()
 
             Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            // Handle any errors while setting the alarm
-            Toast.makeText(
-                requireContext(),
-                "Failed to set alarm: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Failed to set alarm: ${e.message}", Toast.LENGTH_SHORT).show()
             Log.e("AlarmError", "Error setting alarm", e)
         }
     }
+
 
     // Check if the app has permission to draw overlays (display over other apps)
     private fun checkOverlayPermission() {
@@ -217,12 +232,13 @@ class AlarmFragment : Fragment() {
     }
 
     // Show a notification at the specified time
-    private fun showNotification(calendar: Calendar) {
+    private fun showNotification(calendar: Calendar, title: String) {
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(requireContext(), BroadcastReceiver::class.java)
 
         // Intent for triggering the notification via BroadcastReceiver
         intent.action = "Notification"
+        intent.putExtra("ALARM_TITLE", title)
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
             requestCode,
@@ -243,19 +259,19 @@ class AlarmFragment : Fragment() {
 
     // Request permission to set exact alarms (Android S+)
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun requestExactAlarmPermission(calendar: Calendar) {
+    private fun requestExactAlarmPermission(calendar: Calendar, title: String) {
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         if (!alarmManager.canScheduleExactAlarms()) {
             val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
             startActivity(intent)  // Direct the user to the settings to allow exact alarms
         } else {
-            setAlarm(calendar)  // Set the alarm if permission is already granted
+            setAlarm(calendar, title)  // Set the alarm if permission is already granted
         }
     }
 
     // Request permission to post notifications (Android T+)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun requestNotificationPermission(calendar: Calendar) {
+    private fun requestNotificationPermission(calendar: Calendar,title: String) {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.POST_NOTIFICATIONS
@@ -267,7 +283,7 @@ class AlarmFragment : Fragment() {
                 REQUEST_CODE_NOTIFICATION_PERMISSION
             )
         } else {
-            showNotification(calendar)  // Show the notification if permission is already granted
+            showNotification(calendar,title)  // Show the notification if permission is already granted
         }
     }
 

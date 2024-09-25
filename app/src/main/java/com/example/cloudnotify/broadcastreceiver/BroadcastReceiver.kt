@@ -16,33 +16,40 @@ import com.example.cloudnotify.ui.activity.MainActivity
 class BroadcastReceiver : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("AlarmReceiver", "Alarm Received")
+        Log.d("AlarmReceiver", "Alarm Received with Action: ${intent?.action}")
 
         when (intent?.action) {
             "Alarm" -> {
+                val title = intent.getStringExtra("ALARM_TITLE") ?: "Alarm"
+
+                Log.d("BroadcastReceiver", "Received Title: $title")
+
                 // Start the overlay service for alarm
                 val serviceIntent = Intent(context, OverlayService::class.java)
+                serviceIntent.putExtra("TITLE", title)
                 context?.startService(serviceIntent)
-                Log.d("AlarmReceiver", "Alarm Triggered and Overlay Service Started")
+                Log.d("AlarmReceiver", "Alarm Triggered with Title: $title")
             }
             "Notification" -> {
+                val title = intent.getStringExtra("ALARM_TITLE") ?: "Notification"
                 // Show a notification for the scheduled time
-                showNotification(context)
-                Log.d("AlarmReceiver", "Notification Triggered")
+                showNotification(context, title)
+                Log.d("AlarmReceiver", "Notification Triggered with Title: $title")
             }
         }
     }
 
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun showNotification(context: Context?) {
+    private fun showNotification(context: Context?, title: String) {
         val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val intent = Intent(context, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val notification = Notification.Builder(context, "channel_id")
-            .setContentTitle("Alert")
-            .setContentText("It's time to check the weather!")
+            .setContentTitle(title)
+            .setContentText("Check Current Weather Now!")
             .setSmallIcon(R.drawable.alarm)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
