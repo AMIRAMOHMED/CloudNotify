@@ -1,4 +1,4 @@
-package com.example.cloudnotify
+package com.example.cloudnotify.broadcastreceiver
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.cloudnotify.R
 import com.example.cloudnotify.receivers.OverlayService
 import com.example.cloudnotify.ui.activity.MainActivity
 
