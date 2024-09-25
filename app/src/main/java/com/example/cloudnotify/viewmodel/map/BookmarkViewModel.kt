@@ -1,14 +1,10 @@
 package com.example.cloudnotify.viewmodel.map
 
-
-
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.cloudnotify.data.model.local.BookmarkLocation
 import com.example.cloudnotify.data.repo.BookmarkRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 class BookmarkViewModel(
     private val bookmarkRepository: BookmarkRepository

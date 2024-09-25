@@ -3,12 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragment.AlarmFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello from AlarmFragment" />
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/btn_add_alarm"
+
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="340dp"
+            app:icon="@drawable/alarm"
+            app:iconTint="@color/white"
+            app:backgroundTint="@color/soft_purple" />
+
+
 
 </FrameLayout>

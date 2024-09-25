@@ -17,4 +17,8 @@
     <string name="_5_day_forecast">  5-DAY FORECAST</string>
     <string name="saved_to_bookmark">saved to bookmark</string>
     <string name="remove_from_bookmark">remove from bookmark</string>
+    <string name="stop">Stop</string>
+    <string name="go_to_weather">Go To Weather</string>
+    <string name="it_s_time_to_check_out_the_weather">It\'s time to check out the weather!</string>
+    <string name="alarm">Alarm</string>
 </resources>

@@ -8,9 +8,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import com.example.cloudnotify.AlarmFragment
 import com.example.cloudnotify.R
 import com.example.cloudnotify.databinding.ActivityMainBinding
+import com.example.cloudnotify.ui.fragment.AlarmFragment
 import com.example.cloudnotify.ui.fragment.FavouriteFragment
 import com.example.cloudnotify.ui.fragment.SettingsFragment
 import com.google.android.material.navigation.NavigationView

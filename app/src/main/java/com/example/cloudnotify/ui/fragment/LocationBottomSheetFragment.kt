@@ -123,7 +123,6 @@ binding.imgFavorite.setOnClickListener {
                             binding.imgFavorite.setImageResource(
                                 if (isFavorite) R.drawable.bookmark_remove else R.drawable.bookmark_add
                             )
-                            dismiss()
 
 
                             binding.imgFavorite.setOnClickListener {
