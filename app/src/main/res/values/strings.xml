@@ -7,7 +7,6 @@
     <string name="exit">Exit</string>
     <string name="open_nav">Open Navigation Drawer</string>
     <string name="close_nav">Close Navigation Drawer</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="rain">Rain</string>
     <string name="wind_speed">Wind Speed</string>
@@ -21,4 +20,20 @@
     <string name="go_to_weather">Go To Weather</string>
     <string name="it_s_time_to_check_out_the_weather">It\'s time to check out the weather!</string>
     <string name="alarm">Alarm</string>
+    <string name="location">Location</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+    <string name="language">Language</string>
+    <string name="english">English</string>
+    <string name="arabic">Arabic</string>
+    <string name="temperature">Temperature</string>
+    <string name="celsius">Celsius</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="windspeed">WindSpeed</string>
+    <string name="metersec">MeterSec</string>
+    <string name="milehour">MileHour</string>
+    <string name="kmh">Kmh</string>
+    <string name="notifications">Notifications</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
 </resources>
