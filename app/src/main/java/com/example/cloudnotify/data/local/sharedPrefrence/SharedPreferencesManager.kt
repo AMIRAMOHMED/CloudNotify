@@ -55,38 +55,7 @@ fun saveValueString(key: KEYS, value: String) {
     fun getGpsLocationLong(): Long {
         return getValue(KEYS.GPS_LOCATION_LON, 0L)
     }
-    // save map latitude
-    fun saveMapLocationLat(lat: Long) {
-        saveValue(KEYS.MAP_LOCATION_LAT, lat)
-    }
-    // get map latitude
-    fun getMapLocationLat(): Long {
-        return getValue(KEYS.MAP_LOCATION_LAT, 0L)
-    }
-    // save map longitude
-    fun saveMapLocationLong(long: Long) {
-        saveValue(KEYS.MAP_LOCATION_LON, long)
-    }
-    // get map longitude
-    fun getMapLocationLong(): Long {
-        return getValue(KEYS.MAP_LOCATION_LON, 0L)
-    }
-    //save search latitude
-    fun saveSearchLocationLat(lat: Long) {
-        saveValue(KEYS.SEARCH_LOCATION_LAT, lat)
-    }
-    // get search latitude
-    fun getSearchLocationLat(): Long {
-        return getValue(KEYS.SEARCH_LOCATION_LAT, 0L)
-    }
-    // save search longitude
-    fun saveSearchLocationLong(long: Long) {
-        saveValue(KEYS.SEARCH_LOCATION_LON, long)
-    }
-    // get search longitude
-    fun getSearchLocationLong(): Long {
-        return getValue(KEYS.SEARCH_LOCATION_LON, 0L)
-    }
+
 
     fun saveLocationSource(value: String) {
         saveValueString(KEYS.LOCATION_SOURCE, value)

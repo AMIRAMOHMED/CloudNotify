@@ -25,14 +25,23 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.EditText
+import androidx.lifecycle.lifecycleScope
 import com.example.cloudnotify.broadcastreceiver.BroadcastReceiver
 import com.example.cloudnotify.R
+import com.example.cloudnotify.data.local.db.AlertNotificationDao
+import com.example.cloudnotify.data.local.db.WeatherDataBase
+import com.example.cloudnotify.data.model.local.AlertNotification
+import com.example.cloudnotify.data.repo.ALertNotificationRepo
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
+
 class AlarmFragment : Fragment() {
+    private lateinit var alertNotificationRepo: ALertNotificationRepo
+    private lateinit var alertNotificationDao: AlertNotificationDao
     private val sharedPreferencesName = "alert_preferences"  // Name for shared preferences to store alert data
     private val requestCodeKey = "request_code"  // Key for saving and retrieving the request code
     var requestCode: Int = 0  // Request code to differentiate between alarms/notifications
@@ -62,6 +71,9 @@ class AlarmFragment : Fragment() {
         fabAddAlert.setOnClickListener {
             showAlertDialog()  // Show date and time picker dialog
         }
+        //intilize database
+        alertNotificationDao = WeatherDataBase.getInstance(requireContext()).alertNotificationDao
+        alertNotificationRepo = ALertNotificationRepo(alertNotificationDao)
 
         return view
     }
@@ -252,6 +264,13 @@ class AlarmFragment : Fragment() {
             calendar.timeInMillis,
             pendingIntent
         )
+        //saved in database
+        val alretNotification = AlertNotification(requestCode,title, calendar.timeInMillis,"Notification")
+        Log.i("inset", "showNotification: "+alretNotification.title)
+        lifecycleScope.launch(Dispatchers.IO) {
+            alertNotificationRepo.insertAlertNotification(alretNotification)
+
+        }
 
         Toast.makeText(requireContext(), "Notification Scheduled!", Toast.LENGTH_SHORT).show()
 

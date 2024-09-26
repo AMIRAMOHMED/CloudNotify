@@ -13,17 +13,17 @@ class BookmarkRepository(private val bookmarkLocationDao: BookmarkLocationDao) {
     }
 
     // Insert a new bookmark
-    suspend fun insertBookmark(bookmark: BookmarkLocation) {
+     fun insertBookmark(bookmark: BookmarkLocation) {
         bookmarkLocationDao.insertBookmarkLocation(bookmark)
     }
 
     // Delete a bookmark by ID
-    suspend fun deleteBookmarkById(id: Int) {
+     fun deleteBookmarkById(id: Int) {
         bookmarkLocationDao.deleteBookmarkLocationById(id)
     }
 
     // Delete all bookmarks
-    suspend fun deleteAllBookmarks() {
+     fun deleteAllBookmarks() {
         bookmarkLocationDao.deleteAllBookmarkLocations()
     }
 
