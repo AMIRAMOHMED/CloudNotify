@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cloudnotify.R
+import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.databinding.ViewholderDailyBinding
 
@@ -36,8 +37,13 @@ class DailyWeatherItemAdapter: RecyclerView.Adapter<DailyWeatherItemAdapter.Dail
     }
 
     class DailyWeatherItemViewHolder(private val binding: ViewholderDailyBinding) : RecyclerView.ViewHolder(binding.root) {
+        private val converter = Converter()
+
         fun bind(dailyWeather: DailyWeather) {
             binding.dailyWeather = dailyWeather
+            val weatherIconRes = converter.getWeatherIconResource(dailyWeather.icon)
+
+            binding.imgWeather.setImageResource(weatherIconRes)
             binding.executePendingBindings()
         }
     }

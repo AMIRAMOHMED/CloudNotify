@@ -3,13 +3,15 @@ package com.example.cloudnotify.ui.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.data.model.local.AlertNotification
 import com.example.cloudnotify.databinding.ViewholderAlarmBinding
 
 class AlarmItemAdapter() :
     RecyclerView.Adapter<AlarmItemAdapter.AlarmItemViewHolder>() {
 
-private  var alarms= listOf<AlertNotification>()
+
+    private  var alarms= listOf<AlertNotification>()
 
 
     // Inflate the layout and create a ViewHolder

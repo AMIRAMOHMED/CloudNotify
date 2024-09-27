@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.cloudnotify.R
+import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.data.local.db.BookmarkLocationDao
 import com.example.cloudnotify.data.local.db.WeatherDao
@@ -31,6 +32,7 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentLocationBottomSheetBinding
 private lateinit var bookmarkLocationDao: BookmarkLocationDao
 private lateinit var bookmarkRepository: BookmarkRepository
+    private val converter = Converter()
 
     private val bookmarkViewModel: BookmarkViewModel by viewModels {
         BookmarkViewModelFactory(bookmarkRepository)
@@ -106,6 +108,9 @@ binding.imgFavorite.setOnClickListener {
                 currentWeather?.let {
                     // Update UI with current weather
                     Log.i("TAG", "observeViewModel: $currentWeather")
+                    val weatherIconRes = converter.getWeatherIconResource(currentWeather.icon)
+
+                    binding.imgWeather.setImageResource(weatherIconRes)
                     binding.currentWeather = currentWeather
 
                     // Create BookmarkLocation item from current weather
