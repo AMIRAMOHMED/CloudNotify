@@ -30,8 +30,6 @@ import kotlinx.coroutines.flow.collectLatest
 class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListener {
     lateinit var  binding: FragmentFavouriteBinding
     lateinit var bookMarkedItemAdapter: BookMarkedItemAdapter
-    private lateinit var bookmarkLocationDao: BookmarkLocationDao
-    private lateinit var bookmarkRepository: BookmarkRepository
     private  lateinit var locationViewModel: LocationViewModel
     private lateinit var favouriteViewModel: FavouriteViewModel
 

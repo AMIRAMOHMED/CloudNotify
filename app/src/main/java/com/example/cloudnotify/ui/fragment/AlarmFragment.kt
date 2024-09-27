@@ -26,15 +26,20 @@ import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.EditText
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.broadcastreceiver.BroadcastReceiver
 import com.example.cloudnotify.R
 import com.example.cloudnotify.data.local.db.AlertNotificationDao
 import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.model.local.AlertNotification
 import com.example.cloudnotify.data.repo.ALertNotificationRepo
+import com.example.cloudnotify.databinding.FragmentAlarmBinding
+import com.example.cloudnotify.ui.adapters.AlarmItemAdapter
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 
@@ -46,6 +51,8 @@ class AlarmFragment : Fragment() {
     private val requestCodeKey = "request_code"  // Key for saving and retrieving the request code
     var requestCode: Int = 0  // Request code to differentiate between alarms/notifications
     private val notificationChannelId = "channel_id"  // Notification channel ID for Android O+ notifications
+    private lateinit var alertItemAdapter: AlarmItemAdapter
+    private lateinit var binding: FragmentAlarmBinding
 
     companion object {
         private const val REQUEST_CODE_OVERLAY_PERMISSION = 1001  // Request code for overlay permission
@@ -58,7 +65,7 @@ class AlarmFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the fragment's layout
-        val view = inflater.inflate(R.layout.fragment_alarm, container, false)
+        binding  = FragmentAlarmBinding.inflate(inflater, container, false)
 
         // Retrieve request code from shared preferences
         requestCode = getRequestCodeFromPreferences()
@@ -67,7 +74,7 @@ class AlarmFragment : Fragment() {
         createNotificationChannel()
 
         // Set up a button listener for adding alerts
-        val fabAddAlert: ExtendedFloatingActionButton = view.findViewById(R.id.btn_add_alarm)
+        val fabAddAlert: ExtendedFloatingActionButton = binding.btnAddAlarm
         fabAddAlert.setOnClickListener {
             showAlertDialog()  // Show date and time picker dialog
         }
@@ -75,7 +82,39 @@ class AlarmFragment : Fragment() {
         alertNotificationDao = WeatherDataBase.getInstance(requireContext()).alertNotificationDao
         alertNotificationRepo = ALertNotificationRepo(alertNotificationDao)
 
-        return view
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        alertItemAdapter= AlarmItemAdapter()
+        binding.recyclerView.layoutManager=
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL,false)
+        binding.recyclerView.adapter=alertItemAdapter
+        observeBookmarkList()
+
+    }
+    private fun observeBookmarkList() {
+        // Collect and observe data from the ViewModel's StateFlow
+        lifecycleScope.launch(Dispatchers.IO) {
+            alertNotificationRepo.getAllAlertNotifications().collectLatest { alertList ->
+                val currentTime = System.currentTimeMillis()
+
+                // Separate future alerts and expired alerts
+                val validAlerts = alertList.filter { it.calendar > currentTime }
+                val expiredAlerts = alertList.filter { it.calendar <= currentTime }
+
+                // Delete expired alerts from the database
+                expiredAlerts.forEach { expiredAlert ->
+                    alertNotificationRepo.deleteAlertNotificationById(expiredAlert.id)
+                }
+
+                // Switch to the Main thread to update the adapter with valid alerts
+                withContext(Dispatchers.Main) {
+                    alertItemAdapter.updateData(validAlerts)
+                }
+            }
+        }
     }
 
     // Create a notification channel (required for Android O+)
@@ -222,6 +261,17 @@ class AlarmFragment : Fragment() {
 
             // Check Overlay Permission
             checkOverlayPermission()
+            //save in database
+            val alertNotification = AlertNotification(
+                getRequestCodeFromPreferences(),
+                title,
+                alarmTimeInMillis,
+                "Alarm"
+            )
+
+            lifecycleScope.launch (Dispatchers.IO) {
+                alertNotificationDao.insertAlertNotification(alertNotification)
+            }
 
             Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
@@ -265,12 +315,7 @@ class AlarmFragment : Fragment() {
             pendingIntent
         )
         //saved in database
-        val alretNotification = AlertNotification(requestCode,title, calendar.timeInMillis,"Notification")
-        Log.i("inset", "showNotification: "+alretNotification.title)
-        lifecycleScope.launch(Dispatchers.IO) {
-            alertNotificationRepo.insertAlertNotification(alretNotification)
 
-        }
 
         Toast.makeText(requireContext(), "Notification Scheduled!", Toast.LENGTH_SHORT).show()
 
