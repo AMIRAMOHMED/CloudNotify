@@ -9,11 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.cloudnotify.R
+import com.example.cloudnotify.data.local.sharedPrefrence.SharedPreferencesManager
 import com.example.cloudnotify.databinding.ActivityMainBinding
 import com.example.cloudnotify.ui.fragment.AlarmFragment
 import com.example.cloudnotify.ui.fragment.FavouriteFragment
 import com.example.cloudnotify.ui.fragment.SettingsFragment
 import com.google.android.material.navigation.NavigationView
+import java.util.Locale
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             replaceFragment(HomeFragment()) // Load HomeFragment initially
             navigationView.setCheckedItem(R.id.nav_home) // Highlight home in navigation
         }
+        localizationManger()
     }
 
     // Replace the current fragment with the provided fragment
@@ -79,4 +82,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
+fun localizationManger(){
+
+    val userLang = SharedPreferencesManager(this).getLanguage()
+    val local =resources.configuration.locales[0]
+
+    if(userLang != local.language){
+        val newLocal=Locale(userLang)
+        val cong=resources.configuration
+        cong.setLocale(newLocal)
+        cong.setLayoutDirection(newLocal)
+        resources.updateConfiguration(cong,resources.displayMetrics)
+        recreate()
+    }
+
+}
+
+
 }

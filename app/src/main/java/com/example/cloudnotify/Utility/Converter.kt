@@ -1,6 +1,7 @@
 
 package com.example.cloudnotify.Utility
 
+import com.example.cloudnotify.R
 import com.example.cloudnotify.data.model.local.CurrentWeather
 import com.example.cloudnotify.data.model.local.DailyWeather
 import com.example.cloudnotify.data.model.local.HourlyWeather
@@ -35,7 +36,7 @@ class Converter {
             HourlyWeather(
                 dt = weatherData.dt,
                 hour = formattedHour(weatherData.dt.toLong()),  // Convert timestamp to formatted hour
-                weatherDescription = weatherData.weather[0].main,  // Use the main weather description
+                weatherDescription = weatherData.weather[0].description,  // Use the main weather description
                 temperature = weatherData.main.temp.toInt(),  // Extract the temperature
                 tempMax = weatherData.main.temp_max.toInt(),  // Extract the maximum temperature
                 tempMin = weatherData.main.temp_min.toInt(),  // Extract the minimum temperature
@@ -86,7 +87,7 @@ class Converter {
             temperature = response.main.temp.toInt(),
             tempMax = response.main.temp_max.toInt(),
             tempMin = response.main.temp_min.toInt(),
-            weatherDescription =response.weather[0].main,
+            weatherDescription =response.weather[0].description,
             icon =response.weather[0].icon,
             windSpeed = response.wind.speed.toInt(),
             rainPercentage =null,
@@ -103,4 +104,47 @@ class Converter {
             )
     }
 
+    fun getWeatherIconResource(iconCode: String): Int {
+        return when (iconCode) {
+            // Clear sky
+            "01d" -> R.drawable.clear_sky
+            "01n" -> R.drawable.clear_sky_night
+
+            // Few clouds
+            "02d" -> R.drawable.few_cloud
+            "02n" -> R.drawable.few_cloud_night
+
+            // Scattered clouds
+            "03d" -> R.drawable.cloudy
+            "03n" -> R.drawable.cloudy_night
+
+            // Broken clouds
+            "04d" -> R.drawable.broken_cloud
+            "04n" -> R.drawable.broken_cloud_night
+
+            // Shower rain
+            "09d" -> R.drawable.rain
+            "09n" -> R.drawable.rain_night
+
+            // Rain
+            "10d" -> R.drawable.rain
+            "10n" -> R.drawable.rain_night
+
+            // Thunderstorm
+            "11d" -> R.drawable.thunderstorm
+            "11n" -> R.drawable.thunderstorm_night
+
+            // Snow
+            "13d" -> R.drawable.snow
+            "13n" -> R.drawable.snow_night
+
+            // Mist
+            "50d" -> R.drawable.mist_night
+            "50n" -> R.drawable.mist_night
+
+            // Default
+            else -> R.drawable.default_weather_icon
+        }
+    }
 }
+

@@ -99,12 +99,6 @@ if (  sharedPreferencesManager.getLocationSource()=="GPS") {
         }
     }
 
-    // Get data from the database
-     fun getCurrentWeather(): Flow<CurrentWeather> = weatherDao.getCurrentWeather()
-     fun getHourlyWeather(): Flow<List<HourlyWeather>> = weatherDao.getHourlyWeather()
-     fun getDailyWeather(): Flow<List<DailyWeather>> = weatherDao.getDailyWeather()
-
-
 
     // Insert into the database
      fun insertCurrentWeather(currentWeather: CurrentWeather) = weatherDao.insertCurrentWeather(currentWeather)
@@ -120,11 +114,27 @@ if (  sharedPreferencesManager.getLocationSource()=="GPS") {
     fun getGpsLocationLat() =  sharedPreferencesManager.getGpsLocationLat()
     fun getGpsLocationLong() =  sharedPreferencesManager.getGpsLocationLong()
 
+//get Language From Shared Preferences
+ private   fun getLanguage() = sharedPreferencesManager.getLanguage()
+//get Unit From Shared Preferences
+    fun getUnit() =  sharedPreferencesManager.getUnit()
+
 
     // Remote interactions
     suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse =
-        RetrofitInstance.api.getCurrentWeather(getGpsLocationLat().toDouble(), getGpsLocationLong().toDouble())
+        RetrofitInstance.api.getCurrentWeather(
+
+            lat =   getGpsLocationLat().toDouble(),
+            lon = getGpsLocationLong().toDouble(),
+            units = getUnit(),
+            lang =  getLanguage()
+        )
 
     suspend fun getForecastWeatherFromRemote(): WeatherForecastFor7DayResponse =
-        RetrofitInstance.api.getWeatherForecast(getGpsLocationLat().toDouble(), getGpsLocationLong().toDouble())
+        RetrofitInstance.api.getWeatherForecast(
+            lat =   getGpsLocationLat().toDouble(),
+            lon = getGpsLocationLong().toDouble(),
+            units = getUnit(),
+            lang =  getLanguage()
+        )
 }

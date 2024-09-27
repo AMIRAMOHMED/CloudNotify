@@ -12,8 +12,8 @@ interface WeatherService {
     suspend fun getWeatherForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("units") units: String = "metric",
-        @Query("lang") lang: String = "en",
+        @Query("units") units: String ,
+        @Query("lang") lang: String ,
         @Query("appid") apiKey: String = BuildConfig.API_KEY): WeatherForecastFor7DayResponse
 
 
@@ -22,8 +22,8 @@ interface WeatherService {
     suspend fun getCurrentWeather(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("units") units: String = "metric",
-        @Query("lang") lang: String = "en",
+        @Query("units") units: String ,
+        @Query("lang") lang: String ,
         @Query("appid") apiKey: String = BuildConfig.API_KEY
     ):CurrentWeatherResponse
 }

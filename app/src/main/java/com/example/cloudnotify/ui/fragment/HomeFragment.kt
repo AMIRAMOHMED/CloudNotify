@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.R
+import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.repo.WeatherRepository
@@ -32,6 +33,7 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var homeViewModelFactory: HomeViewModelFactory
     private lateinit var  dailyWeatherItemAdapter: DailyWeatherItemAdapter
+    private val converter = Converter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,6 +147,9 @@ class HomeFragment : Fragment() {
             homeViewModel.currentWeather.collect { currentWeather ->
                 // Update UI with current weather
                 binding.currentWeather = currentWeather
+                val weatherIconRes = converter.getWeatherIconResource(currentWeather?.icon ?: "")
+                    
+                binding.imgWeather.setImageResource(weatherIconRes)
             }
         }
 
