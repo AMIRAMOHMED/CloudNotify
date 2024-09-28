@@ -2,7 +2,6 @@ package com.example.cloudnotify.data.repo
 import android.app.Application
 import android.util.Log
 import com.example.cloudnotify.Utility.Converter
-import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.local.sharedPrefrence.SharedPreferencesManager
 import com.example.cloudnotify.data.model.local.CurrentWeather
@@ -17,11 +16,9 @@ import kotlinx.coroutines.Dispatchers
 
 class WeatherRepository(
     private val weatherDao: WeatherDao,
-    private val  application: Application,
-    private val networkUtils: NetworkUtils
+    private val  application: Application
 ) {
     private val converter = Converter()
-
     private val sharedPreferencesManager = SharedPreferencesManager(application)
 
     // Container class to hold all weather data types
@@ -32,45 +29,38 @@ class WeatherRepository(
     )
 
 
+
     fun getWeatherData(): Flow<WeatherDataState> {
         return flow {
-            emit(WeatherDataState.Loading)
-
-            val hasNetworkConnection = networkUtils.hasNetworkConnection()
+            emit(WeatherDataState.Loading) // Emit loading state
             try {
-                if (hasNetworkConnection) {
-                    // Fetch data from remote API if internet is available
-                    val remoteWeatherData = fetchDataFromRemote()
-                    emit(WeatherDataState.Success(remoteWeatherData))
+                // Fetch remote weather data
+                val remoteWeatherData = fetchDataFromRemote()
+                emit(WeatherDataState.Success(remoteWeatherData)) // Emit success with data
 
-                    // Optionally save data to local database
-                        saveWeatherDataToDatabase(remoteWeatherData)
-
-                } else {
-                    Log.i("WeatherRepository", "getWeatherData: "+"No network available")
-                    // No network available, fallback to local data
-                    val localData = fetchDataFromLocal()
-                    Log.i("WeatherRepository", "getWeatherData: "+"localData: "+localData)
-                    if (localData != null) {
-                        emit(WeatherDataState.Success(localData))
-                    } else {
-                        emit(WeatherDataState.Error("No internet connection and no local data available."))
-                    }
+                // Save to database if using GPS as the location source
+                if (sharedPreferencesManager.getLocationSource() == "GPS") {
+                    saveWeatherDataToDatabase(remoteWeatherData)
+                    Log.i("WeatherRepository", "Saved weather data to database")
                 }
-            } catch (e: Exception) {
-                Log.e("WeatherRepository", "Error: ${e.message}")
-                emit(WeatherDataState.Error("Error fetching weather data: ${e.message}"))
 
-                // Fallback to local data in case of exception
+            } catch (e: Exception) {
+                Log.e("WeatherRepository", "Error fetching remote weather data: ${e.message}")
+                emit(WeatherDataState.Error(e.message ?: "Unknown error")) // Emit error state
+
+                // Fallback to local data
                 val localData = fetchDataFromLocal()
                 if (localData != null) {
-                    emit(WeatherDataState.Success(localData))
+                    emit(WeatherDataState.Success(localData)) // Emit success with local data
                 } else {
-                    emit(WeatherDataState.Error("Failed to load data from both remote and local sources."))
+                    emit(WeatherDataState.Error("No local data found")) // Emit error if no local data
                 }
             }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(Dispatchers.IO) // Handle on IO thread for performance
     }
+
+
+
 
     private suspend fun fetchDataFromRemote(): WeatherData {
         // Fetch current and forecast weather from remote API

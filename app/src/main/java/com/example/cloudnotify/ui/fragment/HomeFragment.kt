@@ -53,7 +53,6 @@ class HomeFragment : Fragment() {
             weatherDao,
             requireActivity().application,
 
-            networkUtils
 
         )
 // Initialize LocationViewModel

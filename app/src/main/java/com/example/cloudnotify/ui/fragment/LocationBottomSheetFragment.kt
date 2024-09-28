@@ -25,7 +25,6 @@ import com.example.cloudnotify.viewmodel.map.BookmarkViewModel
 import com.example.cloudnotify.viewmodel.map.BookmarkViewModelFactory
 import com.example.cloudnotify.wrapper.WeatherDataState
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -62,7 +61,6 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
         weatherRepo = WeatherRepository(
             weatherDao,
             requireActivity().application,
-            networkUtils
 
         )
         // Initialize BookmarkRepository with dependencies
