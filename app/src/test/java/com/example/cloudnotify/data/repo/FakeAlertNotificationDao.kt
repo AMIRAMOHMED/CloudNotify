@@ -23,4 +23,8 @@ class FakeAlertNotificationDao : AlertNotificationDao {
         alertList.removeIf { it.id == alertId }
         alertFlow.value = alertList
     }
+
+    fun clear() {
+        alertList.clear() // Reset the state
+    }
 }
