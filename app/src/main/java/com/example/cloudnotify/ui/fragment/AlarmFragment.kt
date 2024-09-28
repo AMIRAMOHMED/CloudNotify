@@ -25,7 +25,11 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.EditText
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.broadcastreceiver.BroadcastReceiver
 import com.example.cloudnotify.R
@@ -35,6 +39,8 @@ import com.example.cloudnotify.data.model.local.AlertNotification
 import com.example.cloudnotify.data.repo.ALertNotificationRepo
 import com.example.cloudnotify.databinding.FragmentAlarmBinding
 import com.example.cloudnotify.ui.adapters.AlarmItemAdapter
+import com.example.cloudnotify.viewmodel.AlarmViewModel.AlarmViewModel
+import com.example.cloudnotify.viewmodel.AlarmViewModel.AlarmViewModelFactory
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -53,6 +59,8 @@ class AlarmFragment : Fragment() {
     private val notificationChannelId = "channel_id"  // Notification channel ID for Android O+ notifications
     private lateinit var alertItemAdapter: AlarmItemAdapter
     private lateinit var binding: FragmentAlarmBinding
+    private lateinit var alarmViewModel: AlarmViewModel
+
 
     companion object {
         private const val REQUEST_CODE_OVERLAY_PERMISSION = 1001  // Request code for overlay permission
@@ -70,6 +78,15 @@ class AlarmFragment : Fragment() {
         // Retrieve request code from shared preferences
         requestCode = getRequestCodeFromPreferences()
 
+
+        //intilize database
+        alertNotificationDao = WeatherDataBase.getInstance(requireContext()).alertNotificationDao
+        alertNotificationRepo = ALertNotificationRepo(alertNotificationDao)
+        // Initialize ViewModel using the ViewModelFactory
+        val alarmFactory = AlarmViewModelFactory(alertNotificationRepo)
+        alarmViewModel = alarmFactory.create(AlarmViewModel::class.java)
+
+
         // Create notification channel for Android O+
         createNotificationChannel()
 
@@ -78,9 +95,6 @@ class AlarmFragment : Fragment() {
         fabAddAlert.setOnClickListener {
             showAlertDialog()  // Show date and time picker dialog
         }
-        //intilize database
-        alertNotificationDao = WeatherDataBase.getInstance(requireContext()).alertNotificationDao
-        alertNotificationRepo = ALertNotificationRepo(alertNotificationDao)
 
         return binding.root
     }
@@ -95,27 +109,17 @@ class AlarmFragment : Fragment() {
 
     }
     private fun observeBookmarkList() {
-        // Collect and observe data from the ViewModel's StateFlow
-        lifecycleScope.launch(Dispatchers.IO) {
-            alertNotificationRepo.getAllAlertNotifications().collectLatest { alertList ->
-                val currentTime = System.currentTimeMillis()
-
-                // Separate future alerts and expired alerts
-                val validAlerts = alertList.filter { it.calendar > currentTime }
-                val expiredAlerts = alertList.filter { it.calendar <= currentTime }
-
-                // Delete expired alerts from the database
-                expiredAlerts.forEach { expiredAlert ->
-                    alertNotificationRepo.deleteAlertNotificationById(expiredAlert.id)
-                }
-
-                // Switch to the Main thread to update the adapter with valid alerts
-                withContext(Dispatchers.Main) {
-                    alertItemAdapter.updateData(validAlerts)
-                }
+        lifecycleScope.launch {
+            alarmViewModel.alertNotifications.collect { alarms ->
+                // Update the UI with the alarm
+                alertItemAdapter.updateData(alarms)
             }
         }
+
     }
+
+
+
 
     // Create a notification channel (required for Android O+)
     private fun createNotificationChannel() {
@@ -269,9 +273,7 @@ class AlarmFragment : Fragment() {
                 "Alarm"
             )
 
-            lifecycleScope.launch (Dispatchers.IO) {
-                alertNotificationDao.insertAlertNotification(alertNotification)
-            }
+            alarmViewModel.insertAlertNotification(alertNotification)
 
             Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
