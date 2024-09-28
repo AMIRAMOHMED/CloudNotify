@@ -89,6 +89,12 @@ dependencies {
         //map
         implementation ("org.osmdroid:osmdroid-android:6.1.12")
 
+        //test
+        testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
+
+        androidTestImplementation(libs.androidx.core.testing)
+        testImplementation ("com.google.truth:truth:1.1.3")
+        androidTestImplementation("com.google.truth:truth:1.1.3")
         implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
