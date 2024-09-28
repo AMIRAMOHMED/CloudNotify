@@ -21,20 +21,20 @@ import com.example.cloudnotify.viewmodel.LocationViewModelFactory
 import com.example.cloudnotify.viewmodel.favourite.FavouriteViewModel
 import com.example.cloudnotify.viewmodel.favourite.FavouriteViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
+import com.airbnb.lottie.LottieAnimationView
+import androidx.appcompat.app.AlertDialog
+import com.example.cloudnotify.Utility.NetworkUtils
 
-
-
-
-
-class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListener {
-    lateinit var  binding: FragmentFavouriteBinding
+class FavouriteFragment : Fragment(), OnRemoveClickListener, OnCardClickListener {
+    lateinit var binding: FragmentFavouriteBinding
     lateinit var bookMarkedItemAdapter: BookMarkedItemAdapter
-    private  lateinit var locationViewModel: LocationViewModel
+    private lateinit var locationViewModel: LocationViewModel
     private lateinit var favouriteViewModel: FavouriteViewModel
-
+    private lateinit var networkUtils: NetworkUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         // Initialize BookmarkLocationDao
         val bookmarkLocationDao = WeatherDataBase.getInstance(requireActivity()).bookmarkLocationDao
 
@@ -44,7 +44,8 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListene
         // Initialize ViewModel for this fragment
         val favouriteViewModelFactory = FavouriteViewModelFactory(bookmarkRepository)
         favouriteViewModel = favouriteViewModelFactory.create(FavouriteViewModel::class.java)
-
+// Initialize NetworkUtils
+        networkUtils = NetworkUtils(requireContext())
         // Initialize LocationViewModel (shared)
         val locationViewModelFactory = LocationViewModelFactory(requireActivity().application)
         locationViewModel = locationViewModelFactory.create(LocationViewModel::class.java)
@@ -54,19 +55,18 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListene
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding= FragmentFavouriteBinding.inflate(inflater,container,false)
+        binding = FragmentFavouriteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bookMarkedItemAdapter= BookMarkedItemAdapter(this,this)
-        binding.recyclerView.layoutManager=
-            LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-        binding.recyclerView.adapter=bookMarkedItemAdapter
+        bookMarkedItemAdapter = BookMarkedItemAdapter(this, this)
+        binding.recyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.recyclerView.adapter = bookMarkedItemAdapter
 
         observeBookmarkList()
-
     }
 
     private fun observeBookmarkList() {
@@ -83,14 +83,41 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener , OnCardClickListene
     }
 
     override fun onCardClick(bookmarkLocation: BookmarkLocation) {
-        locationViewModel.updateLocation(bookmarkLocation.latitude.toLong(), bookmarkLocation.longitude.toLong())
-        locationViewModel.upDateSource(LocationSource.SEARCH)
+        if (networkUtils.hasNetworkConnection()) {
+            // Update location in ViewModel and navigate to HomeFragment
+            locationViewModel.updateLocation(bookmarkLocation.latitude.toLong(), bookmarkLocation.longitude.toLong())
+            locationViewModel.upDateSource(LocationSource.SEARCH)
 
-        val transaction = parentFragmentManager.beginTransaction()
-        val homeFragment = HomeFragment()
-        transaction.replace(R.id.fragment_container, homeFragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
+            val transaction = parentFragmentManager.beginTransaction()
+            val homeFragment = HomeFragment()
+            transaction.replace(R.id.fragment_container, homeFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        } else {
+            // Show dialog with Lottie animation if no internet
+            showNoInternetDialog()
+        }
+    }
+
+
+    private fun showNoInternetDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_no_internet, null)
+
+        // Find Lottie animation view in the dialog layout
+        val lottieAnimationView: LottieAnimationView = dialogView.findViewById(R.id.lottie_no_internet)
+
+        builder.setView(dialogView)
+        builder.setCancelable(true)
+        builder.setPositiveButton("Retry") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        // Start Lottie animation
+        lottieAnimationView.playAnimation()
+
+        // Show dialog
+        val dialog = builder.create()
+        dialog.show()
     }
 }
-
