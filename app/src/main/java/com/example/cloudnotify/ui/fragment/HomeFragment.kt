@@ -153,10 +153,7 @@ class HomeFragment : Fragment() {
                         binding.lottieAnimationView.visibility = View.VISIBLE
                         binding.lottieAnimationView.playAnimation()
                         binding.scrollView.visibility=View.GONE
-
-// Handle possible errors while loading the animation
                     }
-
 
                     is WeatherDataState.Success -> {
                         // Hide loading animation and display data
