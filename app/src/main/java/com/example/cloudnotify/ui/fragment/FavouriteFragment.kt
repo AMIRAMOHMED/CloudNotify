@@ -21,8 +21,7 @@ import com.example.cloudnotify.viewmodel.LocationViewModelFactory
 import com.example.cloudnotify.viewmodel.favourite.FavouriteViewModel
 import com.example.cloudnotify.viewmodel.favourite.FavouriteViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
-import com.airbnb.lottie.LottieAnimationView
-import androidx.appcompat.app.AlertDialog
+import com.example.cloudnotify.Utility.DialogUtils
 import com.example.cloudnotify.Utility.NetworkUtils
 
 class FavouriteFragment : Fragment(), OnRemoveClickListener, OnCardClickListener {
@@ -95,29 +94,8 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener, OnCardClickListener
             transaction.commit()
         } else {
             // Show dialog with Lottie animation if no internet
-            showNoInternetDialog()
+            DialogUtils.showNoInternetDialog(requireContext())
         }
     }
 
-
-    private fun showNoInternetDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        val dialogView = layoutInflater.inflate(R.layout.dialog_no_internet, null)
-
-        // Find Lottie animation view in the dialog layout
-        val lottieAnimationView: LottieAnimationView = dialogView.findViewById(R.id.lottie_no_internet)
-
-        builder.setView(dialogView)
-        builder.setCancelable(true)
-        builder.setPositiveButton("Retry") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        // Start Lottie animation
-        lottieAnimationView.playAnimation()
-
-        // Show dialog
-        val dialog = builder.create()
-        dialog.show()
-    }
 }

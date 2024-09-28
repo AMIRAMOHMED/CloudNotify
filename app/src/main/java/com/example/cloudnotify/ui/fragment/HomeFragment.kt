@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.Converter
+import com.example.cloudnotify.Utility.DialogUtils
 import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.repo.WeatherRepository
@@ -107,6 +108,8 @@ class HomeFragment : Fragment() {
             transaction.commit()
         }
 
+            //check if internet is available
+        checkInternet()
         // Check location permissions
         checkLocationPermissions()
 
@@ -116,6 +119,11 @@ class HomeFragment : Fragment() {
 
         // Fetch and observe weather data in the fragment
         observeWeatherData()
+    }
+    private fun checkInternet() {
+        if (networkUtils.hasNetworkConnection()==false) {
+            DialogUtils.showNoInternetDialog(requireContext())
+        }
     }
 
     private fun setupSearchView() {

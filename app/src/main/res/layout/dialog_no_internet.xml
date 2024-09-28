@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:layout_width="wrap_content"
+    android:background="@color/soft_purple"
     android:layout_height="wrap_content"
     android:gravity="center">
 
@@ -11,6 +12,7 @@
         android:id="@+id/lottie_no_internet"
         android:layout_width="150dp"
         android:layout_height="150dp"
+        app:lottie_colorFilter="@color/soft_purple"
         app:lottie_rawRes="@raw/no_intrnet"
         app:lottie_autoPlay="true"
         app:lottie_loop="true" />
