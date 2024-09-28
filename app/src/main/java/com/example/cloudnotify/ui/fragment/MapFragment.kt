@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.LocationSource
 import com.example.cloudnotify.viewmodel.LocationViewModel
+import com.example.cloudnotify.viewmodel.LocationViewModelFactory
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
@@ -66,7 +67,8 @@ class MapFragment : Fragment(), LocationListener {
         mapView?.controller?.setCenter(startPoint)
 
         // Initialize the location view model
-        locationViewModel = LocationViewModel(requireActivity().application)
+            val  localViewModelFactory = LocationViewModelFactory(requireActivity().application)
+        locationViewModel = localViewModelFactory.create(LocationViewModel::class.java)
 
         // Get current location and add marker
         getCurrentLocation()

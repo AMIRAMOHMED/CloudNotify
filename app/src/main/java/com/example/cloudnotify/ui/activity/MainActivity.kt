@@ -1,5 +1,4 @@
 package com.example.cloudnotify.ui.activity
-
 import HomeFragment
 import android.os.Bundle
 import android.view.MenuItem
@@ -17,6 +16,7 @@ import com.example.cloudnotify.ui.fragment.SettingsFragment
 import com.google.android.material.navigation.NavigationView
 import java.util.Locale
 
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Initialize the view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        checkAndChangLocality()
 
         // Setup the toolbar and navigation drawer
         val drawerLayout = binding.drawerLayout
@@ -50,7 +51,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             replaceFragment(HomeFragment()) // Load HomeFragment initially
             navigationView.setCheckedItem(R.id.nav_home) // Highlight home in navigation
         }
-        localizationManger()
     }
 
     // Replace the current fragment with the provided fragment
@@ -83,21 +83,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-fun localizationManger(){
+    fun checkAndChangLocality()
+    {
+        val languageCode = SharedPreferencesManager(this).getLanguage()
+        val locale = resources.configuration.locales[0]
 
-    val userLang = SharedPreferencesManager(this).getLanguage()
-    val local =resources.configuration.locales[0]
+        if(locale.language != languageCode)
+        {
 
-    if(userLang != local.language){
-        val newLocal=Locale(userLang)
-        val cong=resources.configuration
-        cong.setLocale(newLocal)
-        cong.setLayoutDirection(newLocal)
-        resources.updateConfiguration(cong,resources.displayMetrics)
-        recreate()
+            val newLocale = Locale(languageCode ?: "en")
+            Locale.setDefault(newLocale)
+
+            val config = resources.configuration
+
+            config.setLocale(newLocale)
+            config.setLayoutDirection(newLocale)
+
+            resources.updateConfiguration(config,resources.displayMetrics)
+
+            recreate()
+
+        }
     }
-
-}
 
 
 }

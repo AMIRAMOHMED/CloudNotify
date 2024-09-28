@@ -14,7 +14,8 @@ interface WeatherService {
         @Query("lon") lon: Double,
         @Query("units") units: String ,
         @Query("lang") lang: String ,
-        @Query("appid") apiKey: String = BuildConfig.API_KEY): WeatherForecastFor7DayResponse
+        @Query("appid") apiKey: String = BuildConfig.API_KEY):
+            WeatherForecastFor7DayResponse
 
 
     // Current weather API endpoint using suspend function

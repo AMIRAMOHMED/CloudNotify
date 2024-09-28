@@ -10,7 +10,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="150dp"
         android:layout_margin="8dp"
         android:padding="10dp"
         app:cardCornerRadius="30dp">

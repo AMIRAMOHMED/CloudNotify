@@ -7,14 +7,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.cloudnotify.Utility.LocationSource
-import com.example.cloudnotify.data.model.local.CurrentWeather
-import com.example.cloudnotify.data.model.local.DailyWeather
-import com.example.cloudnotify.data.model.local.HourlyWeather
 import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.viewmodel.LocationViewModel
+import com.example.cloudnotify.wrapper.WeatherDataState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,13 +19,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class HomeViewModel(private val repo: WeatherRepository, application: Application) : AndroidViewModel(application) {
+class HomeViewModel(
+    private val repo: WeatherRepository,
+    application: Application,
+    private val locationViewModel: LocationViewModel // Inject this
+) : AndroidViewModel(application) {
 
-    private val locationViewModel = LocationViewModel(application)
+    private val _weatherDataFlow = MutableStateFlow<WeatherDataState>(WeatherDataState.Loading)
+    val weatherDataFlow: StateFlow<WeatherDataState> = _weatherDataFlow
 
 
-    private val _weatherData = MutableStateFlow<WeatherRepository.WeatherData?>(null)
-    val weatherData = _weatherData.asStateFlow()
     // LiveData to hold location and address data
     private val _locationData = MutableLiveData<Pair<Double, Double>>()
     val locationData: LiveData<Pair<Double, Double>> get() = _locationData
@@ -38,6 +38,8 @@ class HomeViewModel(private val repo: WeatherRepository, application: Applicatio
 
     // FusedLocationProviderClient for getting the location
     private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(application)
+
+    private var lastKnownLocation: Pair<Double, Double>? = null
 
     init {
         fetchWeatherData()
@@ -61,69 +63,73 @@ class HomeViewModel(private val repo: WeatherRepository, application: Applicatio
             _addressData.postValue("Location permission not granted")
         }
     }
-//get loction from city
-fun getLatLongFromCity(cityName: String) {
-    val geocoder = Geocoder(getApplication<Application>().applicationContext, Locale.getDefault())
 
-    try {
-        // The second argument '1' limits the result to 1 location
-        val addresses = geocoder.getFromLocationName(cityName, 1)
-        if (!addresses.isNullOrEmpty()) {
-            val address = addresses[0]
-            val latitude = address.latitude
-            val longitude = address.longitude
-            locationViewModel.updateLocation(latitude.toLong(), longitude.toLong())
-            locationViewModel.upDateSource(LocationSource.SEARCH)
+    // Get location from city name
+    fun getLatLongFromCity(cityName: String) {
+        val geocoder = Geocoder(getApplication<Application>().applicationContext, Locale.getDefault())
 
-            // Log or use the latitude and longitude as needed
-            Log.d("Geocoding", "City: $cityName, Lat: $latitude, Long: $longitude")
+        try {
+            val addresses = geocoder.getFromLocationName(cityName, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                val latitude = address.latitude
+                val longitude = address.longitude
 
+                locationViewModel.updateLocation(latitude.toLong(), longitude.toLong(), isManual = true)
+                locationViewModel.upDateSource(LocationSource.SEARCH)
 
-            // You could also update LiveData or StateFlow to expose this to the UI
-            _locationData.postValue(Pair(latitude, longitude))
-            fetchWeatherData()
+                Log.d("Geocoding", "City: $cityName, Lat: $latitude, Long: $longitude")
+                _locationData.postValue(Pair(latitude, longitude))
 
-        } else {
-            Log.d("Geocoding", "No location found for city: $cityName")
+                fetchWeatherData()
+            } else {
+                Log.d("Geocoding", "No location found for city: $cityName")
+            }
+        } catch (e: Exception) {
+            Log.e("GeocodingError", "Error getting lat/lon for city: $cityName", e)
         }
-    } catch (e: Exception) {
-        Log.e("GeocodingError", "Error getting lat/lon for city: $cityName", e)
     }
-}
 
+    // Update location logic
     private fun updateLocation(location: Location) {
         val latitude = location.latitude
         val longitude = location.longitude
 
-
-        // Save location in SharedPreferences
-        locationViewModel.updateLocation(latitude.toLong(), longitude.toLong())
+        locationViewModel.updateLocation(latitude.toLong(), longitude.toLong(), isManual = false)
         locationViewModel.upDateSource(LocationSource.GPS)
 
-        Log.d("Location", "updateLocation: " + latitude + "long " + longitude)
-        _locationData.postValue(Pair(latitude, longitude))
+        val currentLat = lastKnownLocation?.first ?: 0.0
+        val currentLon = lastKnownLocation?.second ?: 0.0
 
+        if (hasLocationChanged(currentLat, currentLon, latitude, longitude)) {
+            lastKnownLocation = Pair(latitude, longitude)
+            _locationData.postValue(Pair(latitude, longitude))
 
-        // Reverse geocode the location to get the address
-        val geocoder = Geocoder(getApplication<Application>().applicationContext, Locale.getDefault())
-        try {
-            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-            if (!addresses.isNullOrEmpty()) {
-                _addressData.postValue(addresses[0].getAddressLine(0))
+            // Fetch weather data only if the update is manual or first time location is set
+            if (locationViewModel.isManualUpdate.value == true || lastKnownLocation == null) {
+                fetchWeatherData()
             } else {
-                _addressData.postValue("Address not found")
+                Log.d("Location", "Automatic location update ignored")
             }
-        } catch (e: Exception) {
-            _addressData.postValue("Error retrieving address")
+        } else {
+            Log.d("Location", "Location unchanged, skipping weather fetch")
         }
     }
+
+    // Helper function to check if location has significantly changed
+    private fun hasLocationChanged(currentLat: Double, currentLon: Double, newLat: Double, newLon: Double): Boolean {
+        val threshold = 0.01 // Adjust this threshold as necessary
+        return (Math.abs(currentLat - newLat) > threshold || Math.abs(currentLon - newLon) > threshold)
+    }
+
+    // Fetch weather data
 
     fun fetchWeatherData() {
         viewModelScope.launch {
-            repo.getWeatherData().collectLatest { data ->
-                _weatherData.value = data
+            repo.getWeatherData().collectLatest { state ->
+                _weatherDataFlow.value = state // Update the StateFlow with the latest state
             }
         }
-    }
 
+    }
 }

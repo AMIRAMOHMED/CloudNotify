@@ -60,11 +60,11 @@ binding.radioGroupLocation.setOnCheckedChangeListener { group, checkedId ->
             if (binding.rbEnglish.isChecked) {
                 settingRepo.saveLanguage("en")
 
-                ( requireActivity()as MainActivity).localizationManger()
+                ( requireActivity()as MainActivity).checkAndChangLocality()
 
             } else if (binding.rbArabic.isChecked) {
                 settingRepo.saveLanguage("ar")
-                ( requireActivity()as MainActivity).localizationManger()
+                ( requireActivity()as MainActivity).checkAndChangLocality()
 
             }
         }

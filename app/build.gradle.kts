@@ -76,6 +76,8 @@ dependencies {
     kapt ("androidx.room:room-compiler:2.5.0")
     //security
     implementation ("androidx.security:security-crypto:1.1.0-alpha06")
+    //lottie
+    implementation ("com.airbnb.android:lottie:6.0.0")  // Example stable version
 
     // Retrofit and Gson dependencies
     implementation(libs.squareup.retrofit)

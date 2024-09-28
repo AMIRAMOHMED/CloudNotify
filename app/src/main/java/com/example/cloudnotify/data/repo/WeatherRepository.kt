@@ -10,6 +10,7 @@ import com.example.cloudnotify.data.model.local.HourlyWeather
 import com.example.cloudnotify.data.model.remote.current.CurrentWeatherResponse
 import com.example.cloudnotify.data.model.remote.forcast.WeatherForecastFor7DayResponse
 import com.example.cloudnotify.network.RetrofitInstance
+import com.example.cloudnotify.wrapper.WeatherDataState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.Dispatchers
 
@@ -26,28 +27,39 @@ class WeatherRepository(
         val hourlyWeather: List<HourlyWeather>,
         val dailyWeather: List<DailyWeather>
     )
-    fun getWeatherData(): Flow<WeatherData?> {
+
+
+
+    fun getWeatherData(): Flow<WeatherDataState> {
         return flow {
+            emit(WeatherDataState.Loading) // Emit loading state
             try {
+                // Fetch remote weather data
                 val remoteWeatherData = fetchDataFromRemote()
-                emit(remoteWeatherData)
+                emit(WeatherDataState.Success(remoteWeatherData)) // Emit success with data
+
+                // Save to database if using GPS as the location source
                 if (sharedPreferencesManager.getLocationSource() == "GPS") {
                     saveWeatherDataToDatabase(remoteWeatherData)
-                    Log.i("WeatherRepository", "getWeatherData: " +"Saved weather data to database")
+                    Log.i("WeatherRepository", "Saved weather data to database")
                 }
             } catch (e: Exception) {
                 Log.e("WeatherRepository", "Error fetching remote weather data: ${e.message}")
-                emit(fetchDataFromLocal())
+                emit(WeatherDataState.Error(e.message ?: "Unknown error")) // Emit error state
 
+                // Fallback to local data
+                val localData = fetchDataFromLocal()
+                if (localData != null) {
+                    emit(WeatherDataState.Success(localData)) // Emit success with local data
+                } else {
+                    emit(WeatherDataState.Error("No local data found")) // Emit error if no local data
+                }
             }
-        }.flatMapLatest { weatherData ->
-            if (weatherData != null) {
-                flowOf(weatherData)
-            } else {
-                flowOf(null)
-            }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(Dispatchers.IO) // Handle on IO thread for performance
     }
+
+
+
 
     private suspend fun fetchDataFromRemote(): WeatherData {
         // Fetch current and forecast weather from remote API
@@ -80,8 +92,8 @@ class WeatherRepository(
         weatherDao.insertDailyWeather(weatherData.dailyWeather)
     }    private suspend fun fetchDataFromLocal(): WeatherData? {
         val currentWeather = weatherDao.getCurrentWeather().firstOrNull()
-        val hourlyWeatherList = weatherDao.getHourlyWeather().first()  // Collect the flow here
-        val dailyWeatherList = weatherDao.getDailyWeather().first()    // Collect the flow here
+        val hourlyWeatherList = weatherDao.getHourlyWeather().last()  // Collect the flow here
+        val dailyWeatherList = weatherDao.getDailyWeather().last()    // Collect the flow here
 
         return if (currentWeather != null) {
             WeatherData(
@@ -112,7 +124,7 @@ class WeatherRepository(
     fun getUnit() = sharedPreferencesManager.getUnit()
 
     // Remote interactions (fetching from APIs)
-    suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse {
+    suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse  {
         return RetrofitInstance.api.getCurrentWeather(
             lat = getGpsLocationLat().toDouble(),
             lon = getGpsLocationLong().toDouble(),

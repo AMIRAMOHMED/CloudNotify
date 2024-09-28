@@ -1,4 +1,5 @@
 package com.example.cloudnotify.ui.adapters
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -29,6 +30,7 @@ class HourWeatherItemAdapter : RecyclerView.Adapter<HourWeatherItemAdapter.HourW
         holder.bind(hourlyWeather)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setList(hourlyWeatherList: List<HourlyWeather>) {
         this.weather = hourlyWeatherList
         notifyDataSetChanged()

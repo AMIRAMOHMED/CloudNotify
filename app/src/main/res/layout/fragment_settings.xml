@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-xmlns:tools="http://schemas.android.com/tools"
-android:padding="16dp"
-android:background="@drawable/background"
-tools:context=".ui.fragment.SettingsFragment">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:buttonTint="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp"
+    android:background="@drawable/background"
+    tools:context=".ui.fragment.SettingsFragment">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -46,6 +47,7 @@ tools:context=".ui.fragment.SettingsFragment">
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+
                 android:paddingTop="8dp">
 
                 <RadioButton
@@ -54,6 +56,7 @@ tools:context=".ui.fragment.SettingsFragment">
                     android:layout_height="48dp"
                     android:padding="8dp"
                     android:text="@string/gps"
+                    android:buttonTint="@color/white"
                     android:textColor="@color/warm_beach"
                     android:textSize="18dp" />
 
@@ -62,6 +65,7 @@ tools:context=".ui.fragment.SettingsFragment">
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:padding="8dp"
+                    android:buttonTint="@color/white"
                     android:text="@string/map"
                     android:textColor="@color/warm_beach"
                     android:textSize="18dp" />

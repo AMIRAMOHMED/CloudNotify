@@ -38,7 +38,7 @@
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_marginStart="55dp"
+                android:layout_marginStart="20dp"
                 android:src="@drawable/humidity" />
 
             <TextView
@@ -46,20 +46,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:layout_marginStart="10dp"
                 android:text="@{dailyWeather.weatherDescription}"
                 android:textColor="@color/white"
                 android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/txt_temp"
+
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_marginStart="50dp"
+                android:gravity="center|end"
+                android:layout_marginStart="30dp"
                 android:text='@{String.format("%d", dailyWeather.tempMax)  + "/" + String.format("%d", dailyWeather.tempMin)}'
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

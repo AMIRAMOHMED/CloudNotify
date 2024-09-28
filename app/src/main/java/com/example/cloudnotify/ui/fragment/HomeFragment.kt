@@ -1,6 +1,7 @@
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,12 @@ import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter
 import com.example.cloudnotify.ui.fragment.MapFragment
+import com.example.cloudnotify.viewmodel.LocationViewModel
+import com.example.cloudnotify.viewmodel.LocationViewModelFactory
+import com.example.cloudnotify.wrapper.WeatherDataState
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -33,6 +39,7 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var homeViewModelFactory: HomeViewModelFactory
     private lateinit var  dailyWeatherItemAdapter: DailyWeatherItemAdapter
+    private lateinit var locationViewModel: LocationViewModel
     private val converter = Converter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,9 +57,11 @@ class HomeFragment : Fragment() {
             requireActivity().application
 
         )
-
+// Initialize LocationViewModel
+        val locationViewModelFactory = LocationViewModelFactory(requireActivity().application)
+        locationViewModel = locationViewModelFactory.create(LocationViewModel::class.java)
         // Initialize ViewModel
-        homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application)
+        homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application, locationViewModel)
         homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)
         checkLocationPermissions()
 
@@ -134,23 +143,47 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeWeatherData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            homeViewModel.weatherData.collectLatest { weatherData ->
-                if (weatherData != null) {
-                    // Update UI with weather data
-                    binding.currentWeather = weatherData.currentWeather
-                    val weatherIconRes = converter.getWeatherIconResource(weatherData.currentWeather.icon)
-                    binding.imgWeather.setImageResource(weatherIconRes)
-                    hourWeatherAdapter.setList(weatherData.hourlyWeather)
-                    dailyWeatherItemAdapter.setList(weatherData.dailyWeather)
+        homeViewModel.weatherDataFlow
+            .onEach { state ->
+                when (state) {
+                    is WeatherDataState.Loading -> {
+                        binding.lottieAnimationView.visibility = View.VISIBLE
+                        binding.lottieAnimationView.playAnimation()
+// Show the animation and play it
+                        binding.lottieAnimationView.visibility = View.VISIBLE
+                        binding.lottieAnimationView.playAnimation()
+                        binding.scrollView.visibility=View.GONE
+
+// Handle possible errors while loading the animation
+                    }
 
 
-                } else {
-                    // Handle no data case
+                    is WeatherDataState.Success -> {
+                        // Hide loading animation and display data
+                        binding.scrollView.visibility=View.VISIBLE
+
+                        binding.lottieAnimationView.visibility = View.GONE
+
+
+                        // Update UI with the weather data
+                        binding.currentWeather = state.data.currentWeather
+                        val weatherIconRes = converter.getWeatherIconResource(state.data.currentWeather.icon)
+                        binding.imgWeather.setImageResource(weatherIconRes)
+
+                        // Update adapters with the list of hourly and daily weather
+                        hourWeatherAdapter.setList(state.data.hourlyWeather)
+                        dailyWeatherItemAdapter.setList(state.data.dailyWeather)
+                    }
+
+                    is WeatherDataState.Error -> {
+                        // Hide loading and content, show error message
+                        binding.lottieAnimationView.visibility = View.GONE
+                    }
                 }
             }
-        }
+            .launchIn(lifecycleScope)
     }
+
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 100
 
