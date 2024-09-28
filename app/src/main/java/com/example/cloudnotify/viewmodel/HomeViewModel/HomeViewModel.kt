@@ -17,6 +17,8 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -25,15 +27,8 @@ class HomeViewModel(private val repo: WeatherRepository, application: Applicatio
     private val locationViewModel = LocationViewModel(application)
 
 
-    private val _hourlyWeather = MutableStateFlow<List<HourlyWeather>>(emptyList())
-    val hourlyWeather: StateFlow<List<HourlyWeather>> get() = _hourlyWeather
-
-    private val _dailyWeather = MutableStateFlow<List<DailyWeather>>(emptyList())
-    val dailyWeather: StateFlow<List<DailyWeather>> get() = _dailyWeather
-
-    private val _currentWeather = MutableStateFlow<CurrentWeather?>(null)
-    val currentWeather: StateFlow<CurrentWeather?> get() = _currentWeather
-
+    private val _weatherData = MutableStateFlow<WeatherRepository.WeatherData?>(null)
+    val weatherData = _weatherData.asStateFlow()
     // LiveData to hold location and address data
     private val _locationData = MutableLiveData<Pair<Double, Double>>()
     val locationData: LiveData<Pair<Double, Double>> get() = _locationData
@@ -123,30 +118,12 @@ fun getLatLongFromCity(cityName: String) {
         }
     }
 
-    private fun fetchWeatherData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.getWeatherData().collect { weatherData ->
-                Log.d("WeatherData", "Weather Data: $weatherData")
-
-                weatherData?.let { data ->
-                    launch {
-                        data.hourlyWeather.collect { hourlyWeatherList ->
-                            _hourlyWeather.value = hourlyWeatherList
-                            Log.d("HourlyWeather", "Hourly Weather: $hourlyWeatherList")
-                        }
-                    }
-
-                    launch {
-                        data.dailyWeather.collect { dailyWeatherList ->
-                            _dailyWeather.value = dailyWeatherList
-                            Log.d("DailyWeather", "Daily Weather: $dailyWeatherList")
-                        }
-                    }
-
-                    Log.d("CurrentWeather", "Current Weather: ${data.currentWeather}")
-                    _currentWeather.value = data.currentWeather
-                }
+    fun fetchWeatherData() {
+        viewModelScope.launch {
+            repo.getWeatherData().collectLatest { data ->
+                _weatherData.value = data
             }
         }
     }
+
 }

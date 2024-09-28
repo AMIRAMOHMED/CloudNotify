@@ -1,5 +1,4 @@
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,6 +20,7 @@ import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter
 import com.example.cloudnotify.ui.fragment.MapFragment
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -47,7 +47,6 @@ class HomeFragment : Fragment() {
         // Initialize WeatherRepository with dependencies
         weatherRepo = WeatherRepository(
             weatherDao,
-            networkUtils,
             requireActivity().application
 
         )
@@ -109,7 +108,7 @@ class HomeFragment : Fragment() {
 
 
         // Fetch and observe weather data in the fragment
-        observeViewModel()
+        observeWeatherData()
     }
 
     private fun setupSearchView() {
@@ -134,28 +133,21 @@ class HomeFragment : Fragment() {
         Toast.makeText(context, "Searching for: $query", Toast.LENGTH_SHORT).show()
     }
 
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            // Collect hourly weather data
-            homeViewModel.hourlyWeather.collect { hourlyWeatherList ->
-                hourWeatherAdapter.setList(hourlyWeatherList)
-            }
-        }
+    private fun observeWeatherData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            homeViewModel.weatherData.collectLatest { weatherData ->
+                if (weatherData != null) {
+                    // Update UI with weather data
+                    binding.currentWeather = weatherData.currentWeather
+                    val weatherIconRes = converter.getWeatherIconResource(weatherData.currentWeather.icon)
+                    binding.imgWeather.setImageResource(weatherIconRes)
+                    hourWeatherAdapter.setList(weatherData.hourlyWeather)
+                    dailyWeatherItemAdapter.setList(weatherData.dailyWeather)
 
-        lifecycleScope.launch {
-            // Collect current weather data
-            homeViewModel.currentWeather.collect { currentWeather ->
-                // Update UI with current weather
-                binding.currentWeather = currentWeather
-                val weatherIconRes = converter.getWeatherIconResource(currentWeather?.icon ?: "")
-                    
-                binding.imgWeather.setImageResource(weatherIconRes)
-            }
-        }
 
-        lifecycleScope.launch {
-            homeViewModel.dailyWeather.collect{dailyWeather ->
-                dailyWeatherItemAdapter.setList(dailyWeather)
+                } else {
+                    // Handle no data case
+                }
             }
         }
     }
@@ -199,5 +191,9 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(), "Location permission is required", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 }

@@ -22,6 +22,7 @@ import com.example.cloudnotify.databinding.FragmentLocationBottomSheetBinding
 import com.example.cloudnotify.viewmodel.map.BookmarkViewModel
 import com.example.cloudnotify.viewmodel.map.BookmarkViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 class LocationBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var weatherRepo: WeatherRepository
@@ -30,13 +31,14 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var homeViewModelFactory: HomeViewModelFactory
     private lateinit var binding: FragmentLocationBottomSheetBinding
-private lateinit var bookmarkLocationDao: BookmarkLocationDao
-private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var bookmarkLocationDao: BookmarkLocationDao
+    private lateinit var bookmarkRepository: BookmarkRepository
     private val converter = Converter()
 
     private val bookmarkViewModel: BookmarkViewModel by viewModels {
         BookmarkViewModelFactory(bookmarkRepository)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 // Initialize WeatherDao
@@ -50,7 +52,6 @@ private lateinit var bookmarkRepository: BookmarkRepository
         // Initialize WeatherRepository with dependencies
         weatherRepo = WeatherRepository(
             weatherDao,
-            networkUtils,
             requireActivity().application
 
         )
@@ -58,7 +59,7 @@ private lateinit var bookmarkRepository: BookmarkRepository
         bookmarkRepository = BookmarkRepository(
             bookmarkLocationDao,
 
-        )
+            )
 
         // Initialize ViewModel
         homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application)
@@ -81,10 +82,9 @@ private lateinit var bookmarkRepository: BookmarkRepository
 
         observeViewModel()
 
-binding.imgFavorite.setOnClickListener {
-    Log.i("TAG", "onViewCreated: "+"clicked")
-}
-
+        binding.imgFavorite.setOnClickListener {
+            Log.i("TAG", "onViewCreated: " + "clicked")
+        }
 
     }
 
@@ -100,54 +100,65 @@ binding.imgFavorite.setOnClickListener {
     }
 
 
-
     private fun observeViewModel() {
-        lifecycleScope.launch {
-            homeViewModel.currentWeather.collect { currentWeather ->
-                // Check if currentWeather is null
-                currentWeather?.let {
-                    // Update UI with current weather
-                    Log.i("TAG", "observeViewModel: $currentWeather")
-                    val weatherIconRes = converter.getWeatherIconResource(currentWeather.icon)
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            homeViewModel.weatherData.collectLatest { weatherData ->
+                if (weatherData != null) {
+                    val weatherIconRes =
+                        converter.getWeatherIconResource(weatherData.currentWeather?.icon ?: "")
+                    // Update UI with weather data
+                    Log.i("nourrr", "observeViewModel: "+weatherData.currentWeather)
+                    binding.currentWeather = weatherData.currentWeather
                     binding.imgWeather.setImageResource(weatherIconRes)
-                    binding.currentWeather = currentWeather
 
-                    // Create BookmarkLocation item from current weather
+
                     val currentWeatherItem = BookmarkLocation(
-                        id = currentWeather.id,
-                        latitude = currentWeather.latitude,
-                        longitude = currentWeather.longitude,
-                        cityName = currentWeather.cityName,
-                        weatherDescription = currentWeather.weatherDescription,
-                        temperature = currentWeather.temperature
+                        id = weatherData.currentWeather.id,
+                        latitude = weatherData.currentWeather.latitude,
+                        longitude = weatherData.currentWeather.longitude,
+                        cityName = weatherData.currentWeather.cityName,
+                        weatherDescription = weatherData.currentWeather.weatherDescription,
+                        temperature = weatherData.currentWeather.temperature
                     )
-
                     viewLifecycleOwner.lifecycleScope.launch {
-                        bookmarkViewModel.isBookmarkFavorite(currentWeatherItem.id).collect { isFavorite ->
-                            binding.imgFavorite.setImageResource(
-                                if (isFavorite) R.drawable.bookmark_remove else R.drawable.bookmark_add
-                            )
+                        bookmarkViewModel.isBookmarkFavorite(currentWeatherItem.id)
+                            .collect { isFavorite ->
+                                binding.imgFavorite.setImageResource(
+                                    if (isFavorite) R.drawable.bookmark_remove else R.drawable.bookmark_add
+                                )
 
 
-                            binding.imgFavorite.setOnClickListener {
-                                viewLifecycleOwner.lifecycleScope.launch {
-                                    bookmarkViewModel.toggleBookmark(currentWeatherItem, isFavorite).collect { newIsFavorite ->
-                                        binding.imgFavorite.setImageResource(
-                                            if (newIsFavorite) R.drawable.bookmark else R.drawable.bookmark_remove
-                                        )
+                                binding.imgFavorite.setOnClickListener {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        bookmarkViewModel.toggleBookmark(
+                                            currentWeatherItem,
+                                            isFavorite
+                                        ).collect { newIsFavorite ->
+                                            binding.imgFavorite.setImageResource(
+                                                if (newIsFavorite) R.drawable.bookmark else R.drawable.bookmark_remove
+                                            )
 
-                                        val favouriteFragment=FavouriteFragment()
-                                        val transaction = parentFragmentManager.beginTransaction()
-                                        transaction.replace(R.id.fragment_container, favouriteFragment)
-                                        transaction.addToBackStack(null)
-                                        transaction.commit()
-                                        dismiss()
+                                            val favouriteFragment = FavouriteFragment()
+                                            val transaction =
+                                                parentFragmentManager.beginTransaction()
+                                            transaction.replace(
+                                                R.id.fragment_container,
+                                                favouriteFragment
+                                            )
+                                            transaction.addToBackStack(null)
+                                            transaction.commit()
+                                            dismiss()
+                                        }
                                     }
                                 }
                             }
-                        }
                     }
+
+
+                } else {
+                    // Handle no data case
                 }
             }
-        }}}
+        }
+    }
+}

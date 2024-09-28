@@ -1,11 +1,9 @@
 package com.example.cloudnotify.viewmodel.AlarmViewModel
-
 import com.example.cloudnotify.data.model.local.AlertNotification
 import com.example.cloudnotify.data.repo.ALertNotificationRepo
 import com.example.cloudnotify.data.repo.FakeAlertNotificationDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle

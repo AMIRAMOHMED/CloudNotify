@@ -1,9 +1,7 @@
 package com.example.cloudnotify.data.repo
-
 import android.app.Application
 import android.util.Log
 import com.example.cloudnotify.Utility.Converter
-import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.local.sharedPrefrence.SharedPreferencesManager
 import com.example.cloudnotify.data.model.local.CurrentWeather
@@ -12,129 +10,123 @@ import com.example.cloudnotify.data.model.local.HourlyWeather
 import com.example.cloudnotify.data.model.remote.current.CurrentWeatherResponse
 import com.example.cloudnotify.data.model.remote.forcast.WeatherForecastFor7DayResponse
 import com.example.cloudnotify.network.RetrofitInstance
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
 
 class WeatherRepository(
     private val weatherDao: WeatherDao,
-    private val networkUtils: NetworkUtils,
-    private val application: Application
+    private val  application: Application
 ) {
     private val converter = Converter()
     private val sharedPreferencesManager = SharedPreferencesManager(application)
 
-
     // Container class to hold all weather data types
     data class WeatherData(
         val currentWeather: CurrentWeather,
-        val hourlyWeather: Flow<List<HourlyWeather>>, // Using Flow<List<HourlyWeather>> directly
-        val dailyWeather: Flow<List<DailyWeather>>    // Using Flow<List<DailyWeather>> directly
+        val hourlyWeather: List<HourlyWeather>,
+        val dailyWeather: List<DailyWeather>
     )
-
     fun getWeatherData(): Flow<WeatherData?> {
         return flow {
-            val hasNetworkConnection = networkUtils.hasNetworkConnection()
-
-            val weatherData = if (hasNetworkConnection) {
-                try {
-                    fetchDataFromRemote()
-                } catch (e: Exception) {
-                    Log.e("WeatherRepository", "Error fetching weather data: ${e.message}")
-                    throw e
+            try {
+                val remoteWeatherData = fetchDataFromRemote()
+                emit(remoteWeatherData)
+                if (sharedPreferencesManager.getLocationSource() == "GPS") {
+                    saveWeatherDataToDatabase(remoteWeatherData)
+                    Log.i("WeatherRepository", "getWeatherData: " +"Saved weather data to database")
                 }
-            } else {
-                fetchDataFromLocal()
-            }
+            } catch (e: Exception) {
+                Log.e("WeatherRepository", "Error fetching remote weather data: ${e.message}")
+                emit(fetchDataFromLocal())
 
-            emit(weatherData)
-        }.catch { throwable ->
-            Log.e("WeatherRepository", "Uncaught exception: ${throwable.message}")
-        }
+            }
+        }.flatMapLatest { weatherData ->
+            if (weatherData != null) {
+                flowOf(weatherData)
+            } else {
+                flowOf(null)
+            }
+        }.flowOn(Dispatchers.IO)
     }
 
-
-
     private suspend fun fetchDataFromRemote(): WeatherData {
-        // Fetch and process data from the remote API
+        // Fetch current and forecast weather from remote API
         val currentWeatherResponse = getCurrentWeatherFromRemote()
         val forecastResponse = getForecastWeatherFromRemote()
-//mapper
+
+        // Map remote responses to local data models
         val currentWeather = converter.mapCurrentWeatherResponseToCurrentWeather(currentWeatherResponse)
         val hourlyWeatherList = converter.getCurrentDayHourlyWeather(forecastResponse)
         val dailyWeatherList = converter.mapWeatherResponseToDailyWithHourly(forecastResponse)
 
-if (  sharedPreferencesManager.getLocationSource()=="GPS") {
-// Clear old data and insert new data
-    deleteCurrentWeather()
-    deleteHourlyWeather()
-    deleteDailyWeather()
-    insertCurrentWeather(currentWeather)
-    insertHourlyWeather(hourlyWeatherList)
-    insertDailyWeather(dailyWeatherList)
-}
-        // Return WeatherData
+        // Return all weather data (current, hourly, and daily)
         return WeatherData(
             currentWeather = currentWeather,
-            hourlyWeather = weatherDao.getHourlyWeather(),
-            dailyWeather = weatherDao.getDailyWeather()
+            hourlyWeather = hourlyWeatherList,
+            dailyWeather = dailyWeatherList
         )
     }
-    private suspend fun fetchDataFromLocal(): WeatherData? {
-        // Get local data
-        val currentWeather = weatherDao.getCurrentWeather().firstOrNull()
-        val hourlyWeatherFlow = weatherDao.getHourlyWeather()
-        val dailyWeatherFlow = weatherDao.getDailyWeather()
 
-        if (currentWeather != null) {
-            return WeatherData(
+    // Save weather data to the database only when LocationSource is "GPS"
+    private fun saveWeatherDataToDatabase(weatherData: WeatherData) {
+        // Clear old data before saving new weather data
+        weatherDao.deleteCurrentWeather()
+        weatherDao.deleteAllHourlyWeather()
+        weatherDao.deleteAllDailyWeather()
+
+        // Insert new weather data
+        weatherDao.insertCurrentWeather(weatherData.currentWeather)
+        weatherDao.insertHourlyWeather(weatherData.hourlyWeather)
+        weatherDao.insertDailyWeather(weatherData.dailyWeather)
+    }    private suspend fun fetchDataFromLocal(): WeatherData? {
+        val currentWeather = weatherDao.getCurrentWeather().firstOrNull()
+        val hourlyWeatherList = weatherDao.getHourlyWeather().first()  // Collect the flow here
+        val dailyWeatherList = weatherDao.getDailyWeather().first()    // Collect the flow here
+
+        return if (currentWeather != null) {
+            WeatherData(
                 currentWeather = currentWeather,
-                hourlyWeather = hourlyWeatherFlow,
-                dailyWeather = dailyWeatherFlow
+                hourlyWeather = hourlyWeatherList,
+                dailyWeather = dailyWeatherList
             )
         } else {
-            // Handle the case where no local data exists
-            return null
+            null
         }
     }
 
 
     // Insert into the database
-     fun insertCurrentWeather(currentWeather: CurrentWeather) = weatherDao.insertCurrentWeather(currentWeather)
-     fun insertHourlyWeather(hourlyWeather: List<HourlyWeather>) = weatherDao.insertHourlyWeather(hourlyWeather)
-     fun insertDailyWeather(dailyWeather: List<DailyWeather>) = weatherDao.insertDailyWeather(dailyWeather)
+    fun insertCurrentWeather(currentWeather: CurrentWeather) = weatherDao.insertCurrentWeather(currentWeather)
+    fun insertHourlyWeather(hourlyWeather: List<HourlyWeather>) = weatherDao.insertHourlyWeather(hourlyWeather)
+    fun insertDailyWeather(dailyWeather: List<DailyWeather>) = weatherDao.insertDailyWeather(dailyWeather)
 
     // Delete from the database
-     fun deleteCurrentWeather() = weatherDao.deleteCurrentWeather()
-     fun deleteHourlyWeather() = weatherDao.deleteAllHourlyWeather()
-     fun deleteDailyWeather() = weatherDao.deleteAllDailyWeather()
+    fun deleteCurrentWeather() = weatherDao.deleteCurrentWeather()
+    fun deleteHourlyWeather() = weatherDao.deleteAllHourlyWeather()
+    fun deleteDailyWeather() = weatherDao.deleteAllDailyWeather()
 
-    //get From Shared Preferences
-    fun getGpsLocationLat() =  sharedPreferencesManager.getGpsLocationLat()
-    fun getGpsLocationLong() =  sharedPreferencesManager.getGpsLocationLong()
+    // SharedPreferences getters for location, language, and unit settings
+    fun getGpsLocationLat() = sharedPreferencesManager.getGpsLocationLat()
+    fun getGpsLocationLong() = sharedPreferencesManager.getGpsLocationLong()
+    private fun getLanguage() = sharedPreferencesManager.getLanguage()
+    fun getUnit() = sharedPreferencesManager.getUnit()
 
-//get Language From Shared Preferences
- private   fun getLanguage() = sharedPreferencesManager.getLanguage()
-//get Unit From Shared Preferences
-    fun getUnit() =  sharedPreferencesManager.getUnit()
-
-
-    // Remote interactions
-    suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse =
-        RetrofitInstance.api.getCurrentWeather(
-
-            lat =   getGpsLocationLat().toDouble(),
+    // Remote interactions (fetching from APIs)
+    suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse {
+        return RetrofitInstance.api.getCurrentWeather(
+            lat = getGpsLocationLat().toDouble(),
             lon = getGpsLocationLong().toDouble(),
             units = getUnit(),
-            lang =  getLanguage()
+            lang = getLanguage()
         )
+    }
 
-    suspend fun getForecastWeatherFromRemote(): WeatherForecastFor7DayResponse =
-        RetrofitInstance.api.getWeatherForecast(
-            lat =   getGpsLocationLat().toDouble(),
+    suspend fun getForecastWeatherFromRemote(): WeatherForecastFor7DayResponse {
+        return RetrofitInstance.api.getWeatherForecast(
+            lat = getGpsLocationLat().toDouble(),
             lon = getGpsLocationLong().toDouble(),
             units = getUnit(),
-            lang =  getLanguage()
+            lang = getLanguage()
         )
+    }
 }
