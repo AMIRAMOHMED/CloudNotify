@@ -4,12 +4,20 @@ import com.example.cloudnotify.data.repo.FakeAlertNotificationDao
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.first
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 
 class AlertNotificationRepoTest {
 
-    private val fakeDao = FakeAlertNotificationDao()
-    private val repo = ALertNotificationRepo(fakeDao)
+    private  lateinit var repo: ALertNotificationRepo
+    private  lateinit var fakeDao: FakeAlertNotificationDao
+    @Before
+    fun setup() {
+        fakeDao = FakeAlertNotificationDao()
+        repo = ALertNotificationRepo(fakeDao)
+    }
+
+
 
     @Test
     fun insertAlertNotification_addsNotification() = runTest {
