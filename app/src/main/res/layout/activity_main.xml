@@ -39,6 +39,7 @@ android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:menu="@menu/drawer"
         app:itemIconTint="@color/black"
         app:itemTextColor="@color/black"
+        android:background="@drawable/background"
 
 
         />

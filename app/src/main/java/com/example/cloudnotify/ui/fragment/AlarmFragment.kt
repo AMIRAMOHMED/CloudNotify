@@ -25,11 +25,7 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.EditText
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.broadcastreceiver.BroadcastReceiver
 import com.example.cloudnotify.R
@@ -39,18 +35,17 @@ import com.example.cloudnotify.data.model.local.AlertNotification
 import com.example.cloudnotify.data.repo.ALertNotificationRepo
 import com.example.cloudnotify.databinding.FragmentAlarmBinding
 import com.example.cloudnotify.ui.adapters.AlarmItemAdapter
+import com.example.cloudnotify.ui.adapters.DeleteAlarmListener
 import com.example.cloudnotify.viewmodel.AlarmViewModel.AlarmViewModel
 import com.example.cloudnotify.viewmodel.AlarmViewModel.AlarmViewModelFactory
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
+
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 
 
-class AlarmFragment : Fragment() {
+class AlarmFragment : Fragment() , DeleteAlarmListener {
     private lateinit var alertNotificationRepo: ALertNotificationRepo
     private lateinit var alertNotificationDao: AlertNotificationDao
     private val sharedPreferencesName = "alert_preferences"  // Name for shared preferences to store alert data
@@ -101,7 +96,7 @@ class AlarmFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        alertItemAdapter= AlarmItemAdapter()
+        alertItemAdapter= AlarmItemAdapter(this)
         binding.recyclerView.layoutManager=
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL,false)
         binding.recyclerView.adapter=alertItemAdapter
@@ -274,6 +269,7 @@ class AlarmFragment : Fragment() {
             )
 
             alarmViewModel.insertAlertNotification(alertNotification)
+            Log.i("Alarm Fragment", "setAlarm: "+alertNotification.id)
 
             Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
@@ -322,6 +318,9 @@ class AlarmFragment : Fragment() {
         Toast.makeText(requireContext(), "Notification Scheduled!", Toast.LENGTH_SHORT).show()
 
     }
+//delete from database and alarm manager
+
+
 
     // Request permission to set exact alarms (Android S+)
     @RequiresApi(Build.VERSION_CODES.S)
@@ -396,4 +395,31 @@ class AlarmFragment : Fragment() {
         editor.putInt(requestCodeKey, requestCode)
         editor.apply()  // Save the new request code
     }
-}
+
+    override fun deleteAlarm(alarm: AlertNotification) {
+
+            val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(requireContext(), BroadcastReceiver::class.java)
+
+            intent.action = "Alarm"
+
+            val pendingIntent = PendingIntent.getBroadcast(
+                requireContext(),
+                alarm.id,
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            // Check if the PendingIntent exists, meaning the alarm is set
+            if (pendingIntent != null) {
+                // Cancel the alarm
+                alarmManager.cancel(pendingIntent)
+                Toast.makeText(requireContext(), "Alarm deleted successfully", Toast.LENGTH_SHORT).show()
+
+                // Optionally remove the alarm from the database as well
+                alarmViewModel.deleteAlertNotificationById( alarm.id)  // Ensure this method is implemented in your ViewModel
+            } else {
+                Toast.makeText(requireContext(), "No alarm found with request code: ${alarm.id}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+

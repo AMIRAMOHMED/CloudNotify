@@ -5,9 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.data.model.local.AlertNotification
+import com.example.cloudnotify.data.model.local.BookmarkLocation
 import com.example.cloudnotify.databinding.ViewholderAlarmBinding
 
-class AlarmItemAdapter() :
+class AlarmItemAdapter(    private val deleteAlarmListener :DeleteAlarmListener
+) :
     RecyclerView.Adapter<AlarmItemAdapter.AlarmItemViewHolder>() {
 
 
@@ -50,9 +52,14 @@ class AlarmItemAdapter() :
             // Bind alarm data to views
             binding.alarm = alarm
             binding.txtTime.text = convertTime(alarm.calendar)
-
+binding.icoRemove.setOnClickListener {
+    deleteAlarmListener.deleteAlarm(alarm)
+}
             // Execute pending bindings for live updates
             binding.executePendingBindings()
         }
     }
+}
+interface DeleteAlarmListener {
+    fun deleteAlarm(alarm: AlertNotification)
 }
