@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.LocationSource
-import com.example.cloudnotify.data.local.db.BookmarkLocationDao
 import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.model.local.BookmarkLocation
 import com.example.cloudnotify.data.repo.BookmarkRepository

@@ -24,11 +24,8 @@ import com.example.cloudnotify.ui.fragment.MapFragment
 import com.example.cloudnotify.viewmodel.LocationViewModel
 import com.example.cloudnotify.viewmodel.LocationViewModelFactory
 import com.example.cloudnotify.wrapper.WeatherDataState
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
@@ -54,7 +51,9 @@ class HomeFragment : Fragment() {
         // Initialize WeatherRepository with dependencies
         weatherRepo = WeatherRepository(
             weatherDao,
-            requireActivity().application
+            requireActivity().application,
+
+            networkUtils
 
         )
 // Initialize LocationViewModel

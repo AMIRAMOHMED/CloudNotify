@@ -61,7 +61,8 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
         // Initialize WeatherRepository with dependencies
         weatherRepo = WeatherRepository(
             weatherDao,
-            requireActivity().application
+            requireActivity().application,
+            networkUtils
 
         )
         // Initialize BookmarkRepository with dependencies
@@ -123,6 +124,8 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
                             converter.getWeatherIconResource(state.data.currentWeather.icon)
                         binding.currentWeather = state.data.currentWeather
                         binding.imgWeather.setImageResource(weatherIconRes)
+                        state.data.dailyWeather
+                        state.data.hourlyWeather
 
                         // Create a BookmarkLocation object with the current weather data
                         val currentWeatherItem = BookmarkLocation(
