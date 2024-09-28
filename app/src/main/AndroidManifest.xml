@@ -33,7 +33,7 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".receivers.OverlayService"
+            android:name=".receivers.AlarmServices"
             android:permission="android.permission.SYSTEM_ALERT_WINDOW"
             android:exported="false"/>
 

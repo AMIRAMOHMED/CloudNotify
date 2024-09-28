@@ -16,10 +16,10 @@ import com.example.cloudnotify.ui.activity.MainActivity
 
 
 
-class OverlayService : Service() {
+class AlarmServices : Service() {
 
     private lateinit var windowManager: WindowManager
-    private lateinit var overlayView: View
+    private lateinit var alarmView: View
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var binding : FragmentAlarmDialogBinding
 
@@ -30,9 +30,9 @@ class OverlayService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        overlayView = LayoutInflater.from(this).inflate(R.layout.fragment_alarm_dialog, null)
+        alarmView = LayoutInflater.from(this).inflate(R.layout.fragment_alarm_dialog, null)
 
-        binding = FragmentAlarmDialogBinding.bind(overlayView)
+        binding = FragmentAlarmDialogBinding.bind(alarmView)
 
         binding.stopButton.setOnClickListener {
             stopSelf()
@@ -59,7 +59,7 @@ class OverlayService : Service() {
         }
         // insert the view into the window and then display it
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(overlayView, params)
+        windowManager.addView(alarmView, params)
 
         // open the media player and start looping
         val notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
@@ -67,7 +67,7 @@ class OverlayService : Service() {
         mediaPlayer.isLooping = true
         mediaPlayer.start()
 
-        overlayView.setOnClickListener {
+        alarmView.setOnClickListener {
             stopSelf()
         }
     }
@@ -75,8 +75,8 @@ class OverlayService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        if (::overlayView.isInitialized) {
-            windowManager.removeView(overlayView)
+        if (::alarmView.isInitialized) {
+            windowManager.removeView(alarmView)
         }
 
         if (::mediaPlayer.isInitialized) {

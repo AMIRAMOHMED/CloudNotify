@@ -10,7 +10,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.cloudnotify.R
-import com.example.cloudnotify.receivers.OverlayService
+import com.example.cloudnotify.receivers.AlarmServices
 import com.example.cloudnotify.ui.activity.MainActivity
 
 class BroadcastReceiver : BroadcastReceiver() {
@@ -25,7 +25,7 @@ class BroadcastReceiver : BroadcastReceiver() {
                 Log.d("BroadcastReceiver", "Received Title: $title")
 
                 // Start the overlay service for alarm
-                val serviceIntent = Intent(context, OverlayService::class.java)
+                val serviceIntent = Intent(context, AlarmServices::class.java)
                 serviceIntent.putExtra("TITLE", title)
                 context?.startService(serviceIntent)
                 Log.d("AlarmReceiver", "Alarm Triggered with Title: $title")
