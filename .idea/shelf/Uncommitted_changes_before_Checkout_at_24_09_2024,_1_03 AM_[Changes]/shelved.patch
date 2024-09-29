@@ -1,0 +1,279 @@
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import java.util.Properties\n\nplugins {\n    alias(libs.plugins.android.application)\n    alias(libs.plugins.jetbrains.kotlin.android)\n    id(\"com.google.devtools.ksp\")\n    id(\"kotlin-kapt\")\n}\n\n// Load properties from secrets.properties file\nval localProperties = File(rootProject.rootDir, \"secrets.properties\")\nval properties = Properties()\n\nif (localProperties.exists()) {\n    properties.load(localProperties.inputStream())\n}\nandroid {\n    namespace = \"com.example.cloudnotify\"\n    compileSdk = 34\n\n    defaultConfig {\n        applicationId = \"com.example.cloudnotify\"\n        minSdk = 24\n        targetSdk = 34\n        versionCode = 1\n        versionName = \"1.0\"\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\n    }\n\n    buildFeatures {\n        viewBinding = true\n        dataBinding = true\n        buildConfig = true\n    }\n\n    buildTypes {\n        debug {\n            buildConfigField(\"String\", \"API_KEY\", \"\\\"${properties[\"API_KEY\"]}\\\"\")\n        }\n        release {\n            buildConfigField(\"String\", \"API_KEY\", \"\\\"${properties[\"API_KEY\"]}\\\"\")\n            isMinifyEnabled = false\n            proguardFiles(\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\n                \"proguard-rules.pro\"\n            )\n        }\n    }\n\n\n    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_1_8\n        targetCompatibility = JavaVersion.VERSION_1_8\n    }\n    kotlinOptions {\n        jvmTarget = \"1.8\"\n    }\n}\n\ndependencies {\n    implementation(libs.play.services.location)\n    implementation(libs.androidx.ui.desktop)\n    implementation(libs.play.services.maps)\n    implementation(libs.androidx.preference.ktx)\n    val room_version = \"2.6.1\"\n\n    implementation(libs.androidx.room.runtime)\n    annotationProcessor(libs.androidx.room.compiler)\n\n    implementation(libs.androidx.room.ktx)\n    testImplementation(libs.androidx.room.testing)\n    kapt (\"androidx.room:room-compiler:2.5.0\")\n    //security\n    implementation (\"androidx.security:security-crypto:1.1.0-alpha06\")\n\n    // Retrofit and Gson dependencies\n    implementation(libs.squareup.retrofit)\n    implementation(libs.converter.gson)\n    implementation(libs.logging.interceptor)\n    dependencies {\n        val lifecycle_version = \"2.8.6\"\n\n        implementation(\"androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version\")\n        implementation(\"androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version\")\n        //map\n        implementation (\"org.osmdroid:osmdroid-android:6.1.12\")\n\n        implementation(libs.androidx.core.ktx)\n    implementation(libs.androidx.appcompat)\n    implementation(libs.material)\n    implementation(libs.androidx.activity)\n    implementation(libs.androidx.constraintlayout)\n\n    testImplementation(libs.junit)\n    androidTestImplementation(libs.androidx.junit)\n    androidTestImplementation(libs.androidx.espresso.core)\n}\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	
++++ b/app/build.gradle.kts	
+@@ -1,10 +1,11 @@
+ import java.util.Properties
+ 
+ plugins {
+-    alias(libs.plugins.android.application)
+-    alias(libs.plugins.jetbrains.kotlin.android)
++    id("com.android.application")
++    id("org.jetbrains.kotlin.android")
+     id("com.google.devtools.ksp")
+     id("kotlin-kapt")
++    id("androidx.navigation.safeargs.kotlin")
+ }
+ 
+ // Load properties from secrets.properties file
+@@ -18,6 +19,7 @@
+     namespace = "com.example.cloudnotify"
+     compileSdk = 34
+ 
++
+     defaultConfig {
+         applicationId = "com.example.cloudnotify"
+         minSdk = 24
+@@ -53,46 +55,57 @@
+         targetCompatibility = JavaVersion.VERSION_1_8
+     }
+     kotlinOptions {
+-        jvmTarget = "1.8"
++        jvmTarget = JavaVersion.VERSION_1_8.toString()
+     }
+ }
+ 
+ dependencies {
++    // Play Services dependencies
+     implementation(libs.play.services.location)
+-    implementation(libs.androidx.ui.desktop)
+     implementation(libs.play.services.maps)
++
++    // AndroidX dependencies
++    implementation(libs.androidx.ui.desktop)
+     implementation(libs.androidx.preference.ktx)
++
++    // Room dependencies
+     val room_version = "2.6.1"
+-
+     implementation(libs.androidx.room.runtime)
+     annotationProcessor(libs.androidx.room.compiler)
+-
+     implementation(libs.androidx.room.ktx)
+     testImplementation(libs.androidx.room.testing)
+     kapt ("androidx.room:room-compiler:2.5.0")
+-    //security
+-    implementation ("androidx.security:security-crypto:1.1.0-alpha06")
++
++    // Security dependencies
++    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+ 
++    // Navigation dependencies
++    val nav_version = "2.8.1"
++    implementation("androidx.navigation:navigation-fragment:$nav_version")
++    implementation("androidx.navigation:navigation-ui:$nav_version")
++
+     // Retrofit and Gson dependencies
+     implementation(libs.squareup.retrofit)
+     implementation(libs.converter.gson)
+     implementation(libs.logging.interceptor)
+-    dependencies {
+-        val lifecycle_version = "2.8.6"
+-
+-        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+-        implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+-        //map
+-        implementation ("org.osmdroid:osmdroid-android:6.1.12")
++
++    // Lifecycle dependencies
++    val lifecycle_version = "2.8.6"
++    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
++    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
++
++    // Map dependency
++    implementation("org.osmdroid:osmdroid-android:6.1.12")
+ 
+-        implementation(libs.androidx.core.ktx)
++    // AndroidX Core dependencies
++    implementation(libs.androidx.core.ktx)
+     implementation(libs.androidx.appcompat)
+     implementation(libs.material)
+     implementation(libs.androidx.activity)
+     implementation(libs.androidx.constraintlayout)
+ 
++    // Test dependencies
+     testImplementation(libs.junit)
+     androidTestImplementation(libs.androidx.junit)
+     androidTestImplementation(libs.androidx.espresso.core)
+ }
+-}
+Index: app/src/main/java/com/example/cloudnotify/ui/fragment/HomeFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import android.Manifest\nimport android.content.Intent\nimport android.content.pm.PackageManager\nimport android.os.Bundle\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.SearchView\nimport android.widget.Toast\nimport androidx.core.app.ActivityCompat\nimport androidx.fragment.app.Fragment\nimport androidx.lifecycle.lifecycleScope\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.cloudnotify.R\nimport com.example.cloudnotify.data.local.db.WeatherDao\nimport com.example.cloudnotify.data.local.db.WeatherDataBase\nimport com.example.cloudnotify.data.repo.WeatherRepository\nimport com.example.cloudnotify.databinding.FragmentHomeBinding\nimport com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter\nimport com.example.cloudnotify.Utility.NetworkUtils\nimport com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter\nimport com.example.cloudnotify.ui.fragment.MapFragment\nimport kotlinx.coroutines.launch\n\nclass HomeFragment : Fragment() {\n\n    private lateinit var binding: FragmentHomeBinding\n    private lateinit var weatherRepo: WeatherRepository\n    private lateinit var networkUtils: NetworkUtils\n    private lateinit var weatherDao: WeatherDao\n    private lateinit var hourWeatherAdapter: HourWeatherItemAdapter\n    private lateinit var homeViewModel: HomeViewModel\n    private lateinit var homeViewModelFactory: HomeViewModelFactory\n    private lateinit var  dailyWeatherItemAdapter: DailyWeatherItemAdapter\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        // Initialize WeatherDao\n        weatherDao = WeatherDataBase.getInstance(requireActivity()).weatherDao\n\n        // Initialize NetworkUtils\n        networkUtils = NetworkUtils(requireContext())\n\n        // Initialize WeatherRepository with dependencies\n        weatherRepo = WeatherRepository(\n            weatherDao,\n            networkUtils,\n            requireActivity().application\n\n        )\n\n        // Initialize ViewModel\n        homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application)\n        homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)\n        checkLocationPermissions()\n\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        // Use view binding to inflate the layout\n        binding = FragmentHomeBinding.inflate(inflater, container, false)\n\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n        // Initialize RecyclerView and adapter with binding\n        hourWeatherAdapter = HourWeatherItemAdapter()\n        dailyWeatherItemAdapter= DailyWeatherItemAdapter()\n\n        binding.hourRecyclerView.layoutManager =\n            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)\n        binding.hourRecyclerView.adapter = hourWeatherAdapter\n        binding.dayRecyclerView.layoutManager =\n            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)\n        binding.dayRecyclerView.adapter = dailyWeatherItemAdapter\n\n\n\n        // Add a click listener to the add location button\n        binding.btnAddLocation.setOnClickListener {\n            // Create an instance of the destination fragment (MapFragment)\n            val mapFragment = MapFragment()\n\n            // Get the FragmentManager and start a transaction to replace the current fragment\n            val transaction = parentFragmentManager.beginTransaction()\n\n            // Replace the fragment and add the transaction to the back stack (so user can navigate back)\n            transaction.replace(R.id.fragment_container, mapFragment)\n            transaction.addToBackStack(null)  // Add this if you want the user to be able to go back\n\n            // Commit the transaction\n            transaction.commit()\n        }\n\n        // Check location permissions\n        checkLocationPermissions()\n\n        // Set up the SearchView\n        setupSearchView()\n\n\n        // Fetch and observe weather data in the fragment\n        observeViewModel()\n    }\n\n    private fun setupSearchView() {\n        val searchView: SearchView = binding.root.findViewById(R.id.search_view)\n        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {\n            override fun onQueryTextSubmit(query: String?): Boolean {\n                query?.let {\n                    performSearch(it)\n                }\n                return true\n            }\n\n            override fun onQueryTextChange(newText: String?): Boolean {\n                return false\n            }\n        })\n    }\n\n    private fun performSearch(query: String) {\n        // Trigger the ViewModel method to fetch latitude and longitude for the city\n        homeViewModel.getLatLongFromCity(query)\n        Toast.makeText(context, \"Searching for: $query\", Toast.LENGTH_SHORT).show()\n    }\n\n    private fun observeViewModel() {\n        lifecycleScope.launch {\n            // Collect hourly weather data\n            homeViewModel.hourlyWeather.collect { hourlyWeatherList ->\n                hourWeatherAdapter.setList(hourlyWeatherList)\n            }\n        }\n\n        lifecycleScope.launch {\n            // Collect current weather data\n            homeViewModel.currentWeather.collect { currentWeather ->\n                // Update UI with current weather\n                binding.currentWeather = currentWeather // Ensure this is bound correctly in XML\n            }\n        }\n\n        lifecycleScope.launch {\n            homeViewModel.dailyWeather.collect{dailyWeather ->\n                dailyWeatherItemAdapter.setList(dailyWeather)\n            }\n        }\n    }\n\n    private val LOCATION_PERMISSION_REQUEST_CODE = 100\n\n    private fun checkLocationPermissions() {\n        if (ActivityCompat.checkSelfPermission(\n                requireContext(),\n                Manifest.permission.ACCESS_FINE_LOCATION\n            ) != PackageManager.PERMISSION_GRANTED &&\n            ActivityCompat.checkSelfPermission(\n                requireContext(),\n                Manifest.permission.ACCESS_COARSE_LOCATION\n            ) != PackageManager.PERMISSION_GRANTED\n        ) {\n            requestPermissions(\n                arrayOf(\n                    Manifest.permission.ACCESS_FINE_LOCATION,\n                    Manifest.permission.ACCESS_COARSE_LOCATION\n                ),\n                LOCATION_PERMISSION_REQUEST_CODE\n            )\n        } else {\n            // Permissions are already granted, start location updates\n            homeViewModel.getCurrentLocation()\n        }\n    }\n\n    override fun onRequestPermissionsResult(\n        requestCode: Int,\n        permissions: Array<out String>,\n        grantResults: IntArray\n    ) {\n        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {\n            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {\n                // Permission granted, start location updates\n                homeViewModel.getCurrentLocation()\n            } else {\n                // Permission denied, show a message to the user\n                Toast.makeText(requireContext(), \"Location permission is required\", Toast.LENGTH_SHORT).show()\n            }\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/cloudnotify/ui/fragment/HomeFragment.kt b/app/src/main/java/com/example/cloudnotify/ui/fragment/HomeFragment.kt
+--- a/app/src/main/java/com/example/cloudnotify/ui/fragment/HomeFragment.kt	
++++ b/app/src/main/java/com/example/cloudnotify/ui/fragment/HomeFragment.kt	
+@@ -12,6 +12,8 @@
+ import androidx.lifecycle.lifecycleScope
+ import androidx.recyclerview.widget.LinearLayoutManager
+ import com.example.cloudnotify.R
++import androidx.navigation.fragment.findNavController
++
+ import com.example.cloudnotify.data.local.db.WeatherDao
+ import com.example.cloudnotify.data.local.db.WeatherDataBase
+ import com.example.cloudnotify.data.repo.WeatherRepository
+@@ -85,18 +87,9 @@
+ 
+         // Add a click listener to the add location button
+         binding.btnAddLocation.setOnClickListener {
+-            // Create an instance of the destination fragment (MapFragment)
+-            val mapFragment = MapFragment()
++            findNavController().navigate(R.id.action_homeFragment_to_mapFragment)
+ 
+-            // Get the FragmentManager and start a transaction to replace the current fragment
+-            val transaction = parentFragmentManager.beginTransaction()
+ 
+-            // Replace the fragment and add the transaction to the back stack (so user can navigate back)
+-            transaction.replace(R.id.fragment_container, mapFragment)
+-            transaction.addToBackStack(null)  // Add this if you want the user to be able to go back
+-
+-            // Commit the transaction
+-            transaction.commit()
+         }
+ 
+         // Check location permissions
+Index: .idea/kotlinc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"KotlinJpsPluginSettings\">\n    <option name=\"version\" value=\"1.9.0\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/kotlinc.xml b/.idea/kotlinc.xml
+--- a/.idea/kotlinc.xml	
++++ b/.idea/kotlinc.xml	
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="KotlinJpsPluginSettings">
+-    <option name="version" value="1.9.0" />
++    <option name="version" value="1.9.24" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.drawerlayout.widget.DrawerLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/drawer_layout\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    tools:openDrawer=\"start\"\n    android:fitsSystemWindows=\"true\"\n    tools:context=\".ui.activity.MainActivity\">\n<LinearLayout\n    android:layout_width=\"match_parent\"\n    android:orientation=\"vertical\"\n    android:layout_height=\"match_parent\">\n\n\n\n    <androidx.appcompat.widget.Toolbar\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"50dp\"\n        android:elevation=\"4dp\"\n        android:id=\"@+id/toolbar\"\n        android:background=\"@color/dark_blue\"\nandroid:theme=\"@style/ThemeOverlay.AppCompat.Dark.ActionBar\"\n        app:popupTheme=\"@style/ThemeOverlay.AppCompat.Light\"\n        />\n\n    <FrameLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"match_parent\"\n        android:id=\"@+id/fragment_container\"/>\n</LinearLayout>\n    <com.google.android.material.navigation.NavigationView\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"match_parent\"\n        android:id=\"@+id/nav_view\"\n        android:layout_gravity=\"start\"\n        app:headerLayout=\"@layout/nav_header\"\n        app:menu=\"@menu/drawer\"\n        app:itemIconTint=\"@color/black\"\n        app:itemTextColor=\"@color/black\"\n\n\n        />\n\n</androidx.drawerlayout.widget.DrawerLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/activity_main.xml
+--- a/app/src/main/res/layout/activity_main.xml	
++++ b/app/src/main/res/layout/activity_main.xml	
+@@ -25,7 +25,7 @@
+         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+         />
+ 
+-    <FrameLayout
++    <fragment
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:id="@+id/fragment_container"/>
+Index: build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Top-level build file where you can add configuration options common to all sub-projects/modules.\nplugins {\n    alias(libs.plugins.android.application) apply false\n    alias(libs.plugins.jetbrains.kotlin.android) apply false\n    id(\"com.google.devtools.ksp\") version \"1.8.10-1.0.9\" apply false\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle.kts b/build.gradle.kts
+--- a/build.gradle.kts	
++++ b/build.gradle.kts	
+@@ -1,7 +1,24 @@
+-// Top-level build file where you can add configuration options common to all sub-projects/modules.
++buildscript {
++    repositories {
++        google()
++        mavenCentral()
++    }
++    dependencies {
++        // Any classpath dependencies like Navigation plugin
++        val nav_version = "2.8.1"
++        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
++
++                classpath("com.android.tools.build:gradle:8.1.2")
++
++    }
++        }
++
++
++
+ plugins {
+-    alias(libs.plugins.android.application) apply false
+-    alias(libs.plugins.jetbrains.kotlin.android) apply false
+-    id("com.google.devtools.ksp") version "1.8.10-1.0.9" apply false
+ 
+-}
+\ No newline at end of file
++    id("com.android.application") version "8.0.2" apply false
++    id("org.jetbrains.kotlin.android") version "1.9.10" apply false
++    id("com.google.devtools.ksp") version "1.9.10-1.0.13" // Use the latest version
++
++}
+Index: app/src/main/java/com/example/cloudnotify/ui/fragment/LocationBottomSheetFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.cloudnotify.ui.fragment\n\nimport android.os.Bundle\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport com.example.cloudnotify.R\nimport com.google.android.material.bottomsheet.BottomSheetDialogFragment\n\nclass LocationBottomSheetFragment : BottomSheetDialogFragment() {\n\n    private var locationDetails: String? = null\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        // Retrieve arguments (location details) if available\n        locationDetails = arguments?.getString(\"LOCATION_DETAILS\")\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View? {\n        return inflater.inflate(R.layout.fragment_location_bottom_sheet, container, false)\n    }\n\n    // You can update UI components here with the location details\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n//         For example, you can set a TextView with the location details\n//         val locationTextView = view.findViewById<TextView>(R.id.location_details_text_view)\n//         locationTextView.text = \"dfsfd\"\n    }\n\n    companion object {\n        fun newInstance(locationDetails: String): LocationBottomSheetFragment {\n            val fragment = LocationBottomSheetFragment()\n            val args = Bundle().apply {\n                putString(\"LOCATION_DETAILS\", locationDetails)\n            }\n            fragment.arguments = args\n            return fragment\n        }\n    }\n}
+===================================================================
+diff --git a/app/src/main/java/com/example/cloudnotify/ui/fragment/LocationBottomSheetFragment.kt b/app/src/main/java/com/example/cloudnotify/ui/fragment/LocationBottomSheetFragment.kt
+--- a/app/src/main/java/com/example/cloudnotify/ui/fragment/LocationBottomSheetFragment.kt	
++++ b/app/src/main/java/com/example/cloudnotify/ui/fragment/LocationBottomSheetFragment.kt	
+@@ -4,17 +4,20 @@
+ import android.view.LayoutInflater
+ import android.view.View
+ import android.view.ViewGroup
++import androidx.navigation.fragment.navArgs
+ import com.example.cloudnotify.R
++import com.example.cloudnotify.data.model.local.LocalLocation
+ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+ 
+ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
+ 
+-    private var locationDetails: String? = null
++    private var locationDetails: LocalLocation? = null
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
++//        val args: LocationBottomSheetFragment by navArgs()
++//        locationDetails = args.locationDetails
+         // Retrieve arguments (location details) if available
+-        locationDetails = arguments?.getString("LOCATION_DETAILS")
+     }
+ 
+     override fun onCreateView(
+Index: app/src/main/res/navigation/main_graph.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<navigation xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/main_graph\"\n    app:startDestination=\"@id/homeFragment\">\n\n    <fragment\n        android:id=\"@+id/homeFragment\"\n        android:name=\"HomeFragment\"\n        android:label=\"HomeFragment\" >\n        <action\n            android:id=\"@+id/action_homeFragment_to_mapFragment\"\n            app:destination=\"@id/mapFragment\" />\n        <argument\n            android:name=\"Location\"\n            app:argType=\"com.example.cloudnotify.data.model.local.Location\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/alarmFragment\"\n        android:name=\"com.example.cloudnotify.AlarmFragment\"\n        android:label=\"AlarmFragment\" />\n    <dialog\n        android:id=\"@+id/locationBottomSheetFragment\"\n        android:name=\"com.example.cloudnotify.ui.fragment.LocationBottomSheetFragment\"\n        android:label=\"LocationBottomSheetFragment\" />\n    <fragment\n        android:id=\"@+id/settingsFragment\"\n        android:name=\"com.example.cloudnotify.ui.fragment.SettingsFragment\"\n        android:label=\"fragment_settings\"\n        tools:layout=\"@layout/fragment_settings\" />\n    <fragment\n        android:id=\"@+id/mapFragment\"\n        android:name=\"com.example.cloudnotify.ui.fragment.MapFragment\"\n        android:label=\"fragment_map\"\n        tools:layout=\"@layout/fragment_map\" >\n        <action\n            android:id=\"@+id/action_mapFragment_to_locationBottomSheetFragment\"\n            app:destination=\"@id/locationBottomSheetFragment\" />\n        <argument\n            android:name=\"Location\"\n            app:argType=\"com.example.cloudnotify.data.model.local.Location\"\n            app:nullable=\"true\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/favouriteFragment\"\n        android:name=\"com.example.cloudnotify.ui.fragment.FavouriteFragment\"\n        android:label=\"fragment_favourite\"\n        tools:layout=\"@layout/fragment_favourite\" >\n        <action\n            android:id=\"@+id/action_favouriteFragment_to_mapFragment\"\n            app:destination=\"@id/mapFragment\" />\n    </fragment>\n</navigation>
+===================================================================
+diff --git a/app/src/main/res/navigation/main_graph.xml b/app/src/main/res/navigation/main_graph.xml
+--- a/app/src/main/res/navigation/main_graph.xml	
++++ b/app/src/main/res/navigation/main_graph.xml	
+@@ -23,7 +23,15 @@
+     <dialog
+         android:id="@+id/locationBottomSheetFragment"
+         android:name="com.example.cloudnotify.ui.fragment.LocationBottomSheetFragment"
+-        android:label="LocationBottomSheetFragment" />
++        android:label="LocationBottomSheetFragment">
++    <argument
++        android:name="Location"
++        app:argType="com.example.cloudnotify.data.model.local.Location" />
++    </dialog>
++    <argument
++        android:name="Location"
++        app:argType="com.example.cloudnotify.data.model.local.Location" />
++
+     <fragment
+         android:id="@+id/settingsFragment"
+         android:name="com.example.cloudnotify.ui.fragment.SettingsFragment"
