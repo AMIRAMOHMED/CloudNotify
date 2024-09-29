@@ -55,6 +55,11 @@ fun saveValueString(key: KEYS, value: String) {
     fun getGpsLocationLong(): Long {
         return getValue(KEYS.GPS_LOCATION_LON, 0L)
     }
+    // Delete GPS latitude and longitude
+    fun deleteGpsLocation() {
+        sharedPreferences.edit().remove(KEYS.GPS_LOCATION_LAT.key).apply()
+        sharedPreferences.edit().remove(KEYS.GPS_LOCATION_LON.key).apply()
+    }
 
 
     fun saveLocationSource(value: String) {

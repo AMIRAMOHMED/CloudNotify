@@ -1,5 +1,4 @@
 package com.example.cloudnotify.ui.fragment
-import HomeFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -86,10 +85,9 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener, OnCardClickListener
             // Update location in ViewModel and navigate to HomeFragment
             locationViewModel.updateLocation(bookmarkLocation.latitude.toLong(), bookmarkLocation.longitude.toLong())
             locationViewModel.upDateSource(LocationSource.SEARCH)
-
             val transaction = parentFragmentManager.beginTransaction()
-            val homeFragment = HomeFragment()
-            transaction.replace(R.id.fragment_container, homeFragment)
+            val detailscreen = Detailscreen()
+            transaction.replace(R.id.fragment_container, detailscreen)
             transaction.addToBackStack(null)
             transaction.commit()
         } else {

@@ -21,7 +21,8 @@
             android:layout_height="200dp"
             android:layout_gravity="center"
             android:visibility="gone"
-            app:lottie_rawRes="@raw/loadding"
+            app:lottie_colorFilter="@color/soft_purple"
+            app:lottie_rawRes="@raw/loading"
             app:lottie_autoPlay="false"
             app:lottie_loop="true" />
         <androidx.core.widget.NestedScrollView
