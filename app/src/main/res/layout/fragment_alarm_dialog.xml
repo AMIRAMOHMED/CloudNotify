@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/background">
+
+    <!-- Alarm Title -->
+    <TextView
+        android:id="@+id/alarm_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp"
+        android:text="@string/alarm"
+        android:textColor="@color/white"
+        android:textSize="24dp"
+        android:textStyle="bold" />
+
+    <!-- Alarm Message -->
+    <TextView
+        android:id="@+id/alarm_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="24dp"
+        android:text="@string/it_s_time_to_check_out_the_weather"
+        android:textColor="@color/white"
+        android:textSize="18dp" />
+
+    <!-- Buttons for Stop and Snooze -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/stop_button"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#FFC107"
+            android:text="@string/stop"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/snooze_button"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FF5722"
+            android:text="@string/go_to_weather"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+</LinearLayout>
