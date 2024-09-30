@@ -83,7 +83,7 @@ class FavouriteFragment : Fragment(), OnRemoveClickListener, OnCardClickListener
     override fun onCardClick(bookmarkLocation: BookmarkLocation) {
         if (networkUtils.hasNetworkConnection()) {
             // Update location in ViewModel and navigate to HomeFragment
-            locationViewModel.updateLocation(bookmarkLocation.latitude.toLong(), bookmarkLocation.longitude.toLong())
+            locationViewModel.updateLocation(bookmarkLocation.latitude, bookmarkLocation.longitude)
             locationViewModel.upDateSource(LocationSource.SEARCH)
             val transaction = parentFragmentManager.beginTransaction()
             val detailscreen = Detailscreen()

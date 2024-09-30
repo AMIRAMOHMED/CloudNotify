@@ -13,7 +13,7 @@ class LocationViewModel(application: Application) : ViewModel() {
 
 
 
-    fun updateLocation(lat: Long, lon: Long, isManual: Boolean = false) {
+    fun updateLocation(lat: Double, lon: Double, isManual: Boolean = false) {
         sharedPreferencesManager.deleteGpsLocation()
         _isManualUpdate.value = isManual
       sharedPreferencesManager.saveGpsLocationLat(lat)

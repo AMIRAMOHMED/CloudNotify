@@ -103,7 +103,7 @@ class MapFragment : Fragment(), LocationListener {
                 val locationDetails = "Lat: ${point.latitude}, Lon: ${point.longitude}"
 
                 // Save the clicked location details
-                locationViewModel.updateLocation(point.latitude.toLong(), point.longitude.toLong())
+                locationViewModel.updateLocation(point.latitude, point.longitude)
                 locationViewModel.upDateSource(LocationSource.MAP)
 
                 // Create and show the bottom sheet

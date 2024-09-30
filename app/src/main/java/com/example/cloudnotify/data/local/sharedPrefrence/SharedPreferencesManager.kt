@@ -22,13 +22,13 @@ class SharedPreferencesManager(context: Context) {
 
     }
 
-    // Generic method to save a long value
-    fun saveValue(key: KEYS, value: Long) {
+    // Generic method to save a double value
+    fun saveValue(key: KEYS, value: Double) {
         sharedPreferences.edit().putString(key.key, value.toString()).apply()
     }
     // Generic method to get a long value
-    fun getValue(key: KEYS, defaultValue: Long = 0L): Long {
-        return sharedPreferences.getString(key.key, defaultValue.toString())?.toLong() ?: defaultValue
+    fun getValue(key: KEYS, defaultValue: Double = 0.0): Double {
+        return sharedPreferences.getString(key.key, defaultValue.toString())?.toDouble() ?: defaultValue
     }
 // Generic method to save a string value
 fun saveValueString(key: KEYS, value: String) {
@@ -40,20 +40,20 @@ fun saveValueString(key: KEYS, value: String) {
         return sharedPreferences.getString(key.key, defaultValue) ?: defaultValue
     }
     // save GPS latitude
-    fun saveGpsLocationLat(lat: Long) {
+    fun saveGpsLocationLat(lat: Double) {
         saveValue(KEYS.GPS_LOCATION_LAT, lat)
     }
     // get GPS latitude
-    fun getGpsLocationLat(): Long {
-        return getValue(KEYS.GPS_LOCATION_LAT, 0L)
+    fun getGpsLocationLat(): Double {
+        return getValue(KEYS.GPS_LOCATION_LAT, 0.0)
     }
     //save GPS longitude
-    fun saveGpsLocationLong(long: Long) {
+    fun saveGpsLocationLong(long: Double) {
         saveValue(KEYS.GPS_LOCATION_LON, long)
     }
     // get GPS longitude
-    fun getGpsLocationLong(): Long {
-        return getValue(KEYS.GPS_LOCATION_LON, 0L)
+    fun getGpsLocationLong(): Double {
+        return getValue(KEYS.GPS_LOCATION_LON, 0.0)
     }
     // Delete GPS latitude and longitude
     fun deleteGpsLocation() {

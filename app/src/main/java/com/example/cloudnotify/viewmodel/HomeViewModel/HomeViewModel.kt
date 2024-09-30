@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.cloudnotify.Utility.LocationSource
 import com.example.cloudnotify.data.repo.WeatherRepository
-import com.example.cloudnotify.viewmodel.LocationViewModel
 import com.example.cloudnotify.wrapper.WeatherDataState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,7 +20,6 @@ import java.util.Locale
 class HomeViewModel(
     private val repo: WeatherRepository,
     application: Application,
-    private val locationViewModel: LocationViewModel // Inject this
 ) : AndroidViewModel(application) {
 
     private val _weatherDataFlow = MutableStateFlow<WeatherDataState>(WeatherDataState.Loading)
@@ -74,8 +72,8 @@ class HomeViewModel(
                 val latitude = address.latitude
                 val longitude = address.longitude
 
-                locationViewModel.updateLocation(latitude.toLong(), longitude.toLong(), isManual = true)
-                locationViewModel.upDateSource(LocationSource.SEARCH)
+                repo.updateLocation(latitude, longitude)
+                repo.upDateSource(LocationSource.SEARCH)
 
                 Log.d("Geocoding", "City: $cityName, Lat: $latitude, Long: $longitude")
                 _locationData.postValue(Pair(latitude, longitude))
@@ -94,8 +92,8 @@ class HomeViewModel(
         val latitude = location.latitude
         val longitude = location.longitude
 
-        locationViewModel.updateLocation(latitude.toLong(), longitude.toLong(), isManual = false)
-        locationViewModel.upDateSource(LocationSource.GPS)
+        repo.updateLocation(latitude, longitude)
+        repo.upDateSource(LocationSource.GPS)
 
         val currentLat = lastKnownLocation?.first ?: 0.0
         val currentLon = lastKnownLocation?.second ?: 0.0
@@ -105,15 +103,15 @@ class HomeViewModel(
             _locationData.postValue(Pair(latitude, longitude))
 
             // Fetch weather data only if the update is manual or first time location is set
-            if (locationViewModel.isManualUpdate.value == true || lastKnownLocation == null) {
+//            if (locationViewModel.isManualUpdate.value == true || lastKnownLocation == null) {
                 fetchWeatherData()
-            } else {
+//            } else {
                 Log.d("Location", "Automatic location update ignored")
             }
-        } else {
+//        } else {
             Log.d("Location", "Location unchanged, skipping weather fetch")
         }
-    }
+
 
     // Helper function to check if location has significantly changed
     private fun hasLocationChanged(currentLat: Double, currentLon: Double, newLat: Double, newLon: Double): Boolean {

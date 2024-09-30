@@ -2,6 +2,7 @@ package com.example.cloudnotify.data.repo
 import android.app.Application
 import android.util.Log
 import com.example.cloudnotify.Utility.Converter
+import com.example.cloudnotify.Utility.LocationSource
 import com.example.cloudnotify.data.local.db.WeatherDao
 import com.example.cloudnotify.data.local.sharedPrefrence.SharedPreferencesManager
 import com.example.cloudnotify.data.model.local.CurrentWeather
@@ -108,21 +109,26 @@ class WeatherRepository(
     }
 
 
-    // Insert into the database
-    fun insertCurrentWeather(currentWeather: CurrentWeather) = weatherDao.insertCurrentWeather(currentWeather)
-    fun insertHourlyWeather(hourlyWeather: List<HourlyWeather>) = weatherDao.insertHourlyWeather(hourlyWeather)
-    fun insertDailyWeather(dailyWeather: List<DailyWeather>) = weatherDao.insertDailyWeather(dailyWeather)
-
-    // Delete from the database
-    fun deleteCurrentWeather() = weatherDao.deleteCurrentWeather()
-    fun deleteHourlyWeather() = weatherDao.deleteAllHourlyWeather()
-    fun deleteDailyWeather() = weatherDao.deleteAllDailyWeather()
 
     // SharedPreferences getters for location, language, and unit settings
     fun getGpsLocationLat() = sharedPreferencesManager.getGpsLocationLat()
     fun getGpsLocationLong() = sharedPreferencesManager.getGpsLocationLong()
     private fun getLanguage() = sharedPreferencesManager.getLanguage()
     fun getUnit() = sharedPreferencesManager.getUnit()
+
+
+
+// Location related functions
+    fun updateLocation(lat: Double, lon: Double) {
+        sharedPreferencesManager.deleteGpsLocation()
+
+        sharedPreferencesManager.saveGpsLocationLat(lat)
+        sharedPreferencesManager.saveGpsLocationLong(lon)
+    }
+    // Location source related functions
+    fun upDateSource(source: LocationSource) {
+        sharedPreferencesManager.saveLocationSource(source.name)
+    }
 
     // Remote interactions (fetching from APIs)
     suspend fun getCurrentWeatherFromRemote(): CurrentWeatherResponse  {
@@ -133,6 +139,7 @@ class WeatherRepository(
             lang = getLanguage()
         )
     }
+
 
     suspend fun getForecastWeatherFromRemote(): WeatherForecastFor7DayResponse {
         return RetrofitInstance.api.getWeatherForecast(
