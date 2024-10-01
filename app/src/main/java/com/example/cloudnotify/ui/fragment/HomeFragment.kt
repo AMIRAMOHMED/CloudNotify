@@ -62,7 +62,7 @@ class HomeFragment : Fragment() {
         val locationViewModelFactory = LocationViewModelFactory(requireActivity().application)
         locationViewModel = locationViewModelFactory.create(LocationViewModel::class.java)
         // Initialize ViewModel
-        homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application, locationViewModel)
+        homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application)
         homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)
         checkLocationPermissions()
 

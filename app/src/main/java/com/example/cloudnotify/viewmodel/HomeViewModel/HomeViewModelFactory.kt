@@ -2,12 +2,10 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.cloudnotify.data.repo.WeatherRepository
-import com.example.cloudnotify.viewmodel.LocationViewModel
 
 class HomeViewModelFactory(
     private val repository: WeatherRepository,
     private val application: Application, // Add the application parameter,
-    locationViewModel: LocationViewModel,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

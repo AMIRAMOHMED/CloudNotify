@@ -70,7 +70,7 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
 
         // Initialize ViewModel
         homeViewModelFactory =
-            HomeViewModelFactory(weatherRepo, requireActivity().application, locationViewModel)
+            HomeViewModelFactory(weatherRepo, requireActivity().application)
         homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)
 
     }
