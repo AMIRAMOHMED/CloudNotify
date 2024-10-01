@@ -26,13 +26,15 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:layout_marginStart="10dp"
                 android:id="@+id/img_alarm"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:layout_gravity="start"
+                android:layout_gravity="center"
                 android:src="@drawable/alarm"
                 android:contentDescription="@string/alram"
-                app:tint="@color/light_purple" />
+                app:tint="@color/light_purple"
+            />
 
             <TextView
                 android:id="@+id/txt_alarm"
@@ -41,8 +43,8 @@
                 android:layout_marginStart="20dp"
                 android:text="@{alarm.title}"
                 android:gravity="center"
-                android:textColor="@color/white"
-                android:textSize="24sp" />
+                android:textStyle="bold"
+                android:textSize="22sp" />
 
 
             <TextView
@@ -64,7 +66,7 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="10dp"
-                android:src="@drawable/timer_off"
+                android:src="@drawable/delete"
                 android:contentDescription="@string/alram"
                 app:tint="#FF5722" />
 

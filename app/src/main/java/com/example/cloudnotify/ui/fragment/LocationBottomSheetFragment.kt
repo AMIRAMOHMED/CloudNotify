@@ -26,13 +26,11 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentLocationBottomSheetBinding
     private val converter = Converter()
     private val bookmarkViewModel: BookmarkViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize NetworkUtils
         networkUtils = NetworkUtils(requireContext())
-
     }
 
     override fun onCreateView(

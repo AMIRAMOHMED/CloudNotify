@@ -15,8 +15,13 @@ xmlns:tools="http://schemas.android.com/tools"
     <item
         android:id="@+id/nav_fav"
         android:title="@string/favorite"
-        android:icon="@drawable/favorite"/>
+        android:icon="@drawable/bookmark"/>
 
+
+    <item
+        android:id="@+id/nav_alram"
+        android:title="@string/alram"
+        android:icon="@drawable/alarm"/>
 
     <item
     android:id="@+id/nav_settings"
@@ -24,10 +29,7 @@ xmlns:tools="http://schemas.android.com/tools"
     android:title="@string/settings"/>
 
 
-    <item
-        android:id="@+id/nav_alram"
-        android:title="@string/alram"
-        android:icon="@drawable/alarm"/>
+
 
 
 
