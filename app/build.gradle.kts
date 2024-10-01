@@ -3,8 +3,8 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.devtools.ksp")
     id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 // Load properties from secrets.properties file
@@ -14,6 +14,7 @@ val properties = Properties()
 if (localProperties.exists()) {
     properties.load(localProperties.inputStream())
 }
+
 android {
     namespace = "com.example.cloudnotify"
     compileSdk = 34
@@ -47,64 +48,70 @@ android {
         }
     }
 
+    kapt {
+        correctErrorTypes = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
 }
 
 dependencies {
+    // Google Play Services
     implementation(libs.play.services.location)
-    implementation(libs.androidx.ui.desktop)
     implementation(libs.play.services.maps)
-    implementation(libs.androidx.preference.ktx)
+
+    // AndroidX Libraries
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.material)
+
+    // Room Components
     val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    testImplementation("androidx.room:room-testing:$room_version")
 
-    implementation(libs.androidx.room.runtime)
-    annotationProcessor(libs.androidx.room.compiler)
+    // Security
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
-    implementation(libs.androidx.room.ktx)
-    testImplementation(libs.androidx.room.testing)
-    kapt ("androidx.room:room-compiler:2.5.0")
-    //security
-    implementation ("androidx.security:security-crypto:1.1.0-alpha06")
-    //lottie
-    implementation ("com.airbnb.android:lottie:6.0.0")  // Example stable version
+    // Lottie
+    implementation("com.airbnb.android:lottie:6.0.0")
 
-    // Retrofit and Gson dependencies
+    // Retrofit and Gson
     implementation(libs.squareup.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
-    dependencies {
-        val lifecycle_version = "2.8.6"
 
-        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-        //map
-        implementation ("org.osmdroid:osmdroid-android:6.1.12")
+    // Lifecycle Components
+    val lifecycle_version = "2.8.6"
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
 
-        //test
-        testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
+    // Map Library
+    implementation("org.osmdroid:osmdroid-android:6.1.12")
 
-        androidTestImplementation(libs.androidx.core.testing)
-        testImplementation ("com.google.truth:truth:1.1.3")
-        androidTestImplementation("com.google.truth:truth:1.1.3")
-        implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    // Dagger Hilt
+    implementation ("com.google.dagger:hilt-android:2.48")
+    kapt ("com.google.dagger:hilt-compiler:2.48")
 
+
+    // Testing Libraries
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
+    testImplementation("com.google.truth:truth:1.1.3")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
+
+    // AndroidX Core
+    implementation(libs.androidx.core.ktx)
 }

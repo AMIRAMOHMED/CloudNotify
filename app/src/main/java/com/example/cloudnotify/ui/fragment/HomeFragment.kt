@@ -1,3 +1,7 @@
+package com.example.cloudnotify.ui.fragment
+
+import HomeViewModel
+import HomeViewModelFactory
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -20,7 +24,6 @@ import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter
-import com.example.cloudnotify.ui.fragment.MapFragment
 import com.example.cloudnotify.viewmodel.LocationViewModel
 import com.example.cloudnotify.viewmodel.LocationViewModelFactory
 import com.example.cloudnotify.wrapper.WeatherDataState

@@ -6,7 +6,8 @@ import com.example.cloudnotify.viewmodel.LocationViewModel
 
 class HomeViewModelFactory(
     private val repository: WeatherRepository,
-    private val application: Application,  // Add the application parameter,
+    private val application: Application, // Add the application parameter,
+    locationViewModel: LocationViewModel,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
