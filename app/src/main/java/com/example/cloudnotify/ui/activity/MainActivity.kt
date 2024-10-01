@@ -11,14 +11,15 @@ import com.example.cloudnotify.data.local.sharedPrefrence.SharedPreferencesManag
 import com.example.cloudnotify.databinding.ActivityMainBinding
 import com.example.cloudnotify.ui.fragment.AlarmFragment
 import com.example.cloudnotify.ui.fragment.FavouriteFragment
-import com.example.cloudnotify.ui.fragment.HomeFragment
+import com.example.cloudnotify.ui.fragment.HomeFragment.HomeFragment
 import com.example.cloudnotify.ui.fragment.SettingsFragment
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
 
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding

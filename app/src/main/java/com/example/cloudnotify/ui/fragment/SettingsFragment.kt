@@ -8,6 +8,7 @@ import com.example.cloudnotify.R
 import com.example.cloudnotify.data.repo.SettingRepo
 import com.example.cloudnotify.databinding.FragmentSettingsBinding
 import com.example.cloudnotify.ui.activity.MainActivity
+import com.example.cloudnotify.ui.fragment.HomeFragment.HomeFragment
 
 class SettingsFragment : Fragment() {
  private lateinit var  binding: FragmentSettingsBinding

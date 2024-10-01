@@ -25,6 +25,7 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.EditText
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.broadcastreceiver.BroadcastReceiver
@@ -37,23 +38,22 @@ import com.example.cloudnotify.databinding.FragmentAlarmBinding
 import com.example.cloudnotify.ui.adapters.AlarmItemAdapter
 import com.example.cloudnotify.ui.adapters.DeleteAlarmListener
 import com.example.cloudnotify.viewmodel.AlarmViewModel.AlarmViewModel
-import com.example.cloudnotify.viewmodel.AlarmViewModel.AlarmViewModelFactory
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
-
+@AndroidEntryPoint
 class AlarmFragment : Fragment() , DeleteAlarmListener {
-    private lateinit var alertNotificationRepo: ALertNotificationRepo
-    private lateinit var alertNotificationDao: AlertNotificationDao
+
     private val sharedPreferencesName = "alert_preferences"  // Name for shared preferences to store alert data
     private val requestCodeKey = "request_code"  // Key for saving and retrieving the request code
     var requestCode: Int = 0  // Request code to differentiate between alarms/notifications
     private val notificationChannelId = "channel_id"  // Notification channel ID for Android O+ notifications
     private lateinit var alertItemAdapter: AlarmItemAdapter
     private lateinit var binding: FragmentAlarmBinding
-    private lateinit var alarmViewModel: AlarmViewModel
+    private  val alarmViewModel: AlarmViewModel by viewModels()
 
 
     companion object {
@@ -71,15 +71,6 @@ class AlarmFragment : Fragment() , DeleteAlarmListener {
 
         // Retrieve request code from shared preferences
         requestCode = getRequestCodeFromPreferences()
-
-
-        //intilize database
-        alertNotificationDao = WeatherDataBase.getInstance(requireContext()).alertNotificationDao
-        alertNotificationRepo = ALertNotificationRepo(alertNotificationDao)
-        // Initialize ViewModel using the ViewModelFactory
-        val alarmFactory = AlarmViewModelFactory(alertNotificationRepo)
-        alarmViewModel = alarmFactory.create(AlarmViewModel::class.java)
-
 
         // Create notification channel for Android O+
         createNotificationChannel()

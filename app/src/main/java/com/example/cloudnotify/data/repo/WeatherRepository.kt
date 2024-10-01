@@ -1,5 +1,4 @@
 package com.example.cloudnotify.data.repo
-import android.app.Application
 import android.util.Log
 import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.Utility.LocationSource
@@ -14,13 +13,13 @@ import com.example.cloudnotify.network.RetrofitInstance
 import com.example.cloudnotify.wrapper.WeatherDataState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
-class WeatherRepository(
+class WeatherRepository @Inject constructor(
     private val weatherDao: WeatherDao,
-    private val  application: Application
+    private val sharedPreferencesManager: SharedPreferencesManager
 ) {
     private val converter = Converter()
-    private val sharedPreferencesManager = SharedPreferencesManager(application)
 
     // Container class to hold all weather data types
     data class WeatherData(

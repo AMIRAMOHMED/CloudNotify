@@ -1,6 +1,4 @@
 package com.example.cloudnotify.ui.fragment
-import HomeViewModel
-import HomeViewModelFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,67 +9,29 @@ import androidx.lifecycle.lifecycleScope
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.Utility.NetworkUtils
-import com.example.cloudnotify.data.local.db.BookmarkLocationDao
-import com.example.cloudnotify.data.local.db.WeatherDao
-import com.example.cloudnotify.data.local.db.WeatherDataBase
 import com.example.cloudnotify.data.model.local.BookmarkLocation
-import com.example.cloudnotify.data.repo.BookmarkRepository
-import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.databinding.FragmentLocationBottomSheetBinding
-import com.example.cloudnotify.viewmodel.LocationViewModel
-import com.example.cloudnotify.viewmodel.LocationViewModelFactory
+import com.example.cloudnotify.viewmodel.HomeViewModel.HomeViewModel
 import com.example.cloudnotify.viewmodel.map.BookmarkViewModel
-import com.example.cloudnotify.viewmodel.map.BookmarkViewModelFactory
 import com.example.cloudnotify.wrapper.WeatherDataState
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+@AndroidEntryPoint
 class LocationBottomSheetFragment : BottomSheetDialogFragment() {
-    private lateinit var weatherRepo: WeatherRepository
     private lateinit var networkUtils: NetworkUtils
-    private lateinit var weatherDao: WeatherDao
-    private lateinit var homeViewModel: HomeViewModel
-    private lateinit var homeViewModelFactory: HomeViewModelFactory
+    private val homeViewModel: HomeViewModel by viewModels()
     private lateinit var binding: FragmentLocationBottomSheetBinding
-    private lateinit var bookmarkLocationDao: BookmarkLocationDao
-    private lateinit var bookmarkRepository: BookmarkRepository
-    private lateinit var locationViewModel: LocationViewModel
     private val converter = Converter()
-
-    private val bookmarkViewModel: BookmarkViewModel by viewModels {
-        BookmarkViewModelFactory(bookmarkRepository)
-    }
+    private val bookmarkViewModel: BookmarkViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-// Initialize WeatherDao
-        weatherDao = WeatherDataBase.getInstance(requireActivity()).weatherDao
-// Initialize BookmarkLocationDao
-        bookmarkLocationDao = WeatherDataBase.getInstance(requireActivity()).bookmarkLocationDao
 
         // Initialize NetworkUtils
         networkUtils = NetworkUtils(requireContext())
-        // Initialize LocationViewModel
-        val locationViewModelFactory = LocationViewModelFactory(requireActivity().application)
-        locationViewModel = locationViewModelFactory.create(LocationViewModel::class.java)
-
-        // Initialize WeatherRepository with dependencies
-        weatherRepo = WeatherRepository(
-            weatherDao,
-            requireActivity().application,
-
-        )
-        // Initialize BookmarkRepository with dependencies
-        bookmarkRepository = BookmarkRepository(
-            bookmarkLocationDao,
-
-            )
-
-        // Initialize ViewModel
-        homeViewModelFactory =
-            HomeViewModelFactory(weatherRepo, requireActivity().application)
-        homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)
 
     }
 

@@ -4,8 +4,9 @@ import com.example.cloudnotify.data.local.db.BookmarkLocationDao
 import com.example.cloudnotify.data.model.local.BookmarkLocation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import javax.inject.Inject
 
-class BookmarkRepository(private val bookmarkLocationDao: BookmarkLocationDao) {
+class BookmarkRepository @Inject constructor(   private  val bookmarkLocationDao: BookmarkLocationDao) {
 
     // Get all bookmarks
     fun getAllBookmarkLocations(): Flow<List<BookmarkLocation>> {
@@ -31,4 +32,7 @@ class BookmarkRepository(private val bookmarkLocationDao: BookmarkLocationDao) {
     suspend fun isBookmarkFavorite(id: Int): Boolean {
         return bookmarkLocationDao.isBookmarkLocationFavorite(id).firstOrNull() ?: false
     }
+
+
+
 }

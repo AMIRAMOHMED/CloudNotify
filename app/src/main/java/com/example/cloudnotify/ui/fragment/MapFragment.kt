@@ -14,10 +14,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.LocationSource
 import com.example.cloudnotify.viewmodel.LocationViewModel
-import com.example.cloudnotify.viewmodel.LocationViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
@@ -26,13 +27,13 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.MapEventsOverlay
 
 
-
+@AndroidEntryPoint
 class MapFragment : Fragment(), LocationListener {
 
     private var mapView: MapView? = null
     private var currentLocationMarker: Marker? = null
     private var clickedLocationMarker: Marker? = null
-    private lateinit var locationViewModel: LocationViewModel
+    private  val  locationViewModel: LocationViewModel by viewModels()
     private var lastClickedLocation: GeoPoint? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,10 +66,6 @@ class MapFragment : Fragment(), LocationListener {
         val startPoint = GeoPoint(31.2001, 29.9187)
         mapView?.controller?.setZoom(15.0)
         mapView?.controller?.setCenter(startPoint)
-
-        // Initialize the location view model
-            val  localViewModelFactory = LocationViewModelFactory(requireActivity().application)
-        locationViewModel = localViewModelFactory.create(LocationViewModel::class.java)
 
         // Get current location and add marker
         getCurrentLocation()

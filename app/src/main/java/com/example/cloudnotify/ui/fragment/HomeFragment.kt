@@ -1,7 +1,5 @@
-package com.example.cloudnotify.ui.fragment
+package com.example.cloudnotify.ui.fragment.HomeFragment
 
-import HomeViewModel
-import HomeViewModelFactory
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -12,65 +10,43 @@ import android.widget.SearchView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cloudnotify.R
 import com.example.cloudnotify.Utility.Converter
 import com.example.cloudnotify.Utility.DialogUtils
-import com.example.cloudnotify.data.local.db.WeatherDao
-import com.example.cloudnotify.data.local.db.WeatherDataBase
-import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.databinding.FragmentHomeBinding
 import com.example.cloudnotify.ui.adapters.HourWeatherItemAdapter
 import com.example.cloudnotify.Utility.NetworkUtils
 import com.example.cloudnotify.ui.adapters.DailyWeatherItemAdapter
-import com.example.cloudnotify.viewmodel.LocationViewModel
-import com.example.cloudnotify.viewmodel.LocationViewModelFactory
+import com.example.cloudnotify.ui.fragment.MapFragment
+import com.example.cloudnotify.viewmodel.HomeViewModel.HomeViewModel
 import com.example.cloudnotify.wrapper.WeatherDataState
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var weatherRepo: WeatherRepository
     private lateinit var networkUtils: NetworkUtils
-    private lateinit var weatherDao: WeatherDao
     private lateinit var hourWeatherAdapter: HourWeatherItemAdapter
-    private lateinit var homeViewModel: HomeViewModel
-    private lateinit var homeViewModelFactory: HomeViewModelFactory
+    private val homeViewModel: HomeViewModel by viewModels()
     private lateinit var  dailyWeatherItemAdapter: DailyWeatherItemAdapter
-    private lateinit var locationViewModel: LocationViewModel
     private val converter = Converter()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize WeatherDao
-        weatherDao = WeatherDataBase.getInstance(requireActivity()).weatherDao
-
         // Initialize NetworkUtils
         networkUtils = NetworkUtils(requireContext())
 
-        // Initialize WeatherRepository with dependencies
-        weatherRepo = WeatherRepository(
-            weatherDao,
-            requireActivity().application,
-
-
-        )
-// Initialize LocationViewModel
-        val locationViewModelFactory = LocationViewModelFactory(requireActivity().application)
-        locationViewModel = locationViewModelFactory.create(LocationViewModel::class.java)
-        // Initialize ViewModel
-        homeViewModelFactory = HomeViewModelFactory(weatherRepo, requireActivity().application)
-        homeViewModel = homeViewModelFactory.create(HomeViewModel::class.java)
         checkLocationPermissions()
 
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+
     ): View {
         // Use view binding to inflate the layout
         binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -118,8 +94,6 @@ class HomeFragment : Fragment() {
         checkInternet()
         // Check location permissions
         checkLocationPermissions()
-
-
         // Set up the SearchView
         setupSearchView()
 
@@ -234,7 +208,6 @@ class HomeFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -104,6 +104,8 @@ dependencies {
     implementation ("com.google.dagger:hilt-android:2.48")
     kapt ("com.google.dagger:hilt-compiler:2.48")
 
+//
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.5.3")
 
     // Testing Libraries
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")

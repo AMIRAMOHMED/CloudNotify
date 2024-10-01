@@ -2,9 +2,12 @@ package com.example.cloudnotify.data.local.sharedPrefrence
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class SharedPreferencesManager(context: Context) {
-
+class SharedPreferencesManager @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     private val masterKey: MasterKey by lazy {
         MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)

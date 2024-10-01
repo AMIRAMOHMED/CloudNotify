@@ -4,14 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cloudnotify.data.model.local.BookmarkLocation
 import com.example.cloudnotify.data.repo.BookmarkRepository
+import com.example.cloudnotify.data.repo.WeatherRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FavouriteViewModel(
+@HiltViewModel
+
+class FavouriteViewModel @Inject constructor(
+
+
     private val bookmarkRepository: BookmarkRepository
+
+
 ) : ViewModel() {
 
     // StateFlow to hold the bookmark list

@@ -1,30 +1,36 @@
+package com.example.cloudnotify.viewmodel.HomeViewModel
+
 import android.app.Application
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cloudnotify.Utility.LocationSource
 import com.example.cloudnotify.data.repo.WeatherRepository
 import com.example.cloudnotify.wrapper.WeatherDataState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
+import javax.inject.Inject
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val repo: WeatherRepository,
-    application: Application,
-) : AndroidViewModel(application) {
+    private val application: Application,
+) : ViewModel() {
+
 
     private val _weatherDataFlow = MutableStateFlow<WeatherDataState>(WeatherDataState.Loading)
     val weatherDataFlow: StateFlow<WeatherDataState> = _weatherDataFlow
-
 
     // LiveData to hold location and address data
     private val _locationData = MutableLiveData<Pair<Double, Double>>()
@@ -63,7 +69,8 @@ class HomeViewModel(
 
     // Get location from city name
     fun getLatLongFromCity(cityName: String) {
-        val geocoder = Geocoder(getApplication<Application>().applicationContext, Locale.getDefault())
+        // Use the passed application context directly
+        val geocoder = Geocoder(application, Locale.getDefault())
 
         try {
             val addresses = geocoder.getFromLocationName(cityName, 1)
@@ -102,16 +109,11 @@ class HomeViewModel(
             lastKnownLocation = Pair(latitude, longitude)
             _locationData.postValue(Pair(latitude, longitude))
 
-            // Fetch weather data only if the update is manual or first time location is set
-//            if (locationViewModel.isManualUpdate.value == true || lastKnownLocation == null) {
-                fetchWeatherData()
-//            } else {
-                Log.d("Location", "Automatic location update ignored")
-            }
-//        } else {
+            fetchWeatherData()
+        } else {
             Log.d("Location", "Location unchanged, skipping weather fetch")
         }
-
+    }
 
     // Helper function to check if location has significantly changed
     private fun hasLocationChanged(currentLat: Double, currentLon: Double, newLat: Double, newLon: Double): Boolean {
@@ -120,13 +122,11 @@ class HomeViewModel(
     }
 
     // Fetch weather data
-
     fun fetchWeatherData() {
         viewModelScope.launch {
             repo.getWeatherData().collectLatest { state ->
                 _weatherDataFlow.value = state // Update the StateFlow with the latest state
             }
         }
-
     }
 }

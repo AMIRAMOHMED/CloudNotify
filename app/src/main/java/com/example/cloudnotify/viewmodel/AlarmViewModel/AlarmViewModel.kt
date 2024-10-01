@@ -1,19 +1,21 @@
 package com.example.cloudnotify.viewmodel.AlarmViewModel
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cloudnotify.data.model.local.AlertNotification
 import com.example.cloudnotify.data.repo.ALertNotificationRepo
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-
-class AlarmViewModel(private val alertNotificationRepo: ALertNotificationRepo) : ViewModel() {
-
+@HiltViewModel
+class AlarmViewModel @Inject constructor(
+    private val alertNotificationRepo: ALertNotificationRepo
+) : ViewModel() {
     // MutableStateFlow to hold the list of notifications
     private val _alertNotifications = MutableStateFlow<List<AlertNotification>>(emptyList())
     val alertNotifications: StateFlow<List<AlertNotification>> = _alertNotifications.asStateFlow()
